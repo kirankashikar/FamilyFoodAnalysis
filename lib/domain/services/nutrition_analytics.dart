@@ -15,6 +15,8 @@ class DailyIntakeSummary {
   final double carbsCaloriePercentage;
   final double fatCaloriePercentage;
 
+  MacroNutrients get totalMacros => totalNutrients;
+
   DailyIntakeSummary({
     required this.date,
     required this.totalNutrients,
@@ -32,6 +34,11 @@ class DailyIntakeSummary {
 }
 
 class NutritionAnalytics {
+  static DailyIntakeSummary calculateDailySummary(List<MealEntry> entries, [DailyMacroBudget? budget]) {
+    final now = entries.isNotEmpty ? entries.first.timestamp : DateTime.now();
+    return analyzeDay(date: now, entries: entries, budget: budget ?? DailyMacroBudget.defaultBudget());
+  }
+
   static DailyIntakeSummary analyzeDay({
     required DateTime date,
     required List<MealEntry> entries,

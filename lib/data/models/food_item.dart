@@ -81,6 +81,8 @@ class MacroNutrients {
     );
   }
 
+  MacroNutrients multiply(double factor) => scale(factor);
+
   Map<String, dynamic> toMap() {
     return {
       'calories': calories,
@@ -120,6 +122,13 @@ class FoodItem {
   final List<String> tags; // Vegetarian, Vegan, Gluten-Free, High-Protein, Fermented
   final String? description;
   final List<String> commonIngredients;
+  final bool isVegetarian;
+  final bool isVegan;
+  final bool isGlutenFree;
+
+  String get cuisine => cuisineCategory;
+  String get servingSize => defaultServingUnit;
+  MacroNutrients get perServingMacros => nutrientsPerServing;
 
   const FoodItem({
     required this.id,
@@ -128,9 +137,12 @@ class FoodItem {
     required this.defaultServingUnit,
     required this.defaultServingSize,
     required this.nutrientsPerServing,
-    required this.tags,
+    this.tags = const [],
     this.description,
     this.commonIngredients = const [],
+    this.isVegetarian = false,
+    this.isVegan = false,
+    this.isGlutenFree = false,
   });
 
   Map<String, dynamic> toMap() {
@@ -190,6 +202,28 @@ class MealEntry {
     this.notes,
     this.isSyncedToSheets = false,
   });
+
+  factory MealEntry.fromFoodItem({
+    required FoodItem food,
+    required String memberId,
+    required MealType mealType,
+    required double servings,
+    required DateTime timestamp,
+    String? notes,
+  }) {
+    return MealEntry(
+      id: 'meal_${DateTime.now().microsecondsSinceEpoch}',
+      memberId: memberId,
+      foodItemId: food.id,
+      foodName: food.name,
+      mealType: mealType,
+      servings: servings,
+      servingUnit: food.defaultServingUnit,
+      calculatedNutrients: food.nutrientsPerServing.multiply(servings),
+      timestamp: timestamp,
+      notes: notes,
+    );
+  }
 
   MealEntry copyWith({
     String? id,

@@ -47,6 +47,16 @@ class InventoryRepository {
     await _localStorage.saveInventory(_items);
   }
 
+  Future<void> deleteItem(String id) => removeItem(id);
+
+  Future<void> updateQuantity(String id, double remaining) async {
+    final index = _items.indexWhere((x) => x.id == id);
+    if (index != -1) {
+      _items[index] = _items[index].copyWith(remainingQuantity: remaining);
+      await _localStorage.saveInventory(_items);
+    }
+  }
+
   Future<void> addItemsFromReceipt(GroceryReceipt receipt) async {
     for (final it in receipt.extractedItems) {
       _items.insert(0, it);
@@ -176,10 +186,14 @@ class IntakeRepository {
     await _localStorage.saveIntakeLogs(_entries);
   }
 
+  Future<void> addEntry(MealEntry entry) => logMeal(entry);
+
   Future<void> removeEntry(String id) async {
     _entries.removeWhere((x) => x.id == id);
     await _localStorage.saveIntakeLogs(_entries);
   }
+
+  Future<void> deleteEntry(String id) => removeEntry(id);
 
   Future<void> setAllEntries(List<MealEntry> newEntries) async {
     _entries = List.from(newEntries);
@@ -194,6 +208,8 @@ class IntakeRepository {
           e.timestamp.day == date.day;
     }).toList();
   }
+
+  List<MealEntry> getEntriesForDate(DateTime date, String memberId) => getEntriesForMemberAndDate(memberId, date);
 
   static List<MealEntry> _getInitialSeedIntake() {
     final now = DateTime.now();

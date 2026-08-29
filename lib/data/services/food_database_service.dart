@@ -394,4 +394,10 @@ class FoodDatabaseService {
       return matchesQuery && matchesCuisine && matchesTag;
     }).toList();
   }
+
+  List<String> getAllCuisines() {
+    final cuisines = _predefinedDatabase.map((e) => e.cuisineCategory).toSet().toList();
+    cuisines.sort();
+    return ['All', ...cuisines];
+  }
 }

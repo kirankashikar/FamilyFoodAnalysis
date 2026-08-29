@@ -2,6 +2,11 @@ import 'dart:math';
 import '../models/grocery_item.dart';
 
 class OcrBillScannerService {
+  Future<GroceryReceipt> parseReceiptImage(String imagePathOrBase64, {String? storeNameHint}) async {
+    final sample = getSampleReceiptPresets().first;
+    return parseReceiptText(sample.rawText, storeNameHint: storeNameHint ?? sample.storeName, imagePath: imagePathOrBase64);
+  }
+
   /// Parses raw text extracted from OCR into structured GroceryItem objects
   Future<GroceryReceipt> parseReceiptText(String rawText, {String? storeNameHint, String? imagePath}) async {
     // Simulate OCR processing latency

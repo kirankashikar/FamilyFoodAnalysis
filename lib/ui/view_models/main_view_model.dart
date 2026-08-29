@@ -5,10 +5,13 @@ import '../../data/models/food_item.dart';
 import '../../data/models/recipe.dart';
 import '../../data/models/nutrition_goals.dart';
 import '../../data/models/google_sheets_config.dart';
+import '../../data/models/store_connector_models.dart';
 import '../../data/services/auth_service.dart';
 import '../../data/services/food_database_service.dart';
 import '../../data/services/google_sheets_service.dart';
 import '../../data/services/ocr_bill_scanner_service.dart';
+import '../../data/services/costco_connector_service.dart';
+import '../../data/services/amazon_connector_service.dart';
 import '../../data/repositories/app_repositories.dart';
 import '../../domain/services/bmi_calculator.dart';
 import '../../domain/services/nutrition_analytics.dart';
@@ -22,11 +25,17 @@ class MainViewModel extends ChangeNotifier {
   final FoodDatabaseService _foodDb;
   final GoogleSheetsService _sheetsService;
   final OcrBillScannerService _ocrService;
+  final CostcoConnectorService _costcoService;
+  final AmazonConnectorService _amazonService;
 
   int _selectedTabIndex = 0;
   DateTime _selectedDate = DateTime.now();
   bool _isLoading = false;
+  bool _isSyncingStore = false;
   String? _statusNotification;
+
+  List<StoreOrder> _costcoOrders = [];
+  List<StoreOrder> _amazonOrders = [];
 
   MainViewModel({
     required AuthService authService,
@@ -36,64 +45,63 @@ class MainViewModel extends ChangeNotifier {
     required FoodDatabaseService foodDb,
     required GoogleSheetsService sheetsService,
     required OcrBillScannerService ocrService,
+    CostcoConnectorService? costcoService,
+    AmazonConnectorService? amazonService,
   })  : _authService = authService,
         _inventoryRepo = inventoryRepo,
         _intakeRepo = intakeRepo,
         _recipeRepo = recipeRepo,
         _foodDb = foodDb,
         _sheetsService = sheetsService,
-        _ocrService = ocrService;
+        _ocrService = ocrService,
+        _costcoService = costcoService ?? CostcoConnectorService(),
+        _amazonService = amazonService ?? AmazonConnectorService();
 
   // Getters
   int get selectedTabIndex => _selectedTabIndex;
   DateTime get selectedDate => _selectedDate;
   bool get isLoading => _isLoading;
+  bool get isSyncingStore => _isSyncingStore;
   String? get statusNotification => _statusNotification;
 
   UserProfile? get currentUser => _authService.currentUser;
   bool get isAuthenticated => _authService.isAuthenticated;
   FamilyMemberProfile get activeMember => _authService.currentUser?.activeMember ?? _createFallbackMember();
 
+  OcrBillScannerService get ocrService => _ocrService;
+  FoodDatabaseService get foodDb => _foodDb;
+  InventoryRepository get inventoryRepo => _inventoryRepo;
+  IntakeRepository get intakeRepo => _intakeRepo;
+  RecipeRepository get recipeRepo => _recipeRepo;
+
   List<GroceryItem> get inventoryItems => _inventoryRepo.items;
   List<GroceryItem> get expiringSoonItems => _inventoryRepo.expiringSoonItems;
   List<GroceryItem> get lowStockItems => _inventoryRepo.lowStockItems;
 
-  List<MealEntry> get allIntakeLogs => _intakeRepo.entries;
+  List<MealEntry> get todayIntakeLogs => _intakeRepo.getEntriesForDate(_selectedDate, activeMember.id);
+  DailyIntakeSummary get todaySummary => NutritionAnalytics.calculateDailySummary(todayIntakeLogs);
+
   List<Recipe> get recipes => _recipeRepo.recipes;
-  List<Recipe> get favoriteRecipes => _recipeRepo.recipes.where((r) => r.isFavorite).toList();
-  List<Recipe> get frequentlyPreparedRecipes => _recipeRepo.recipes.where((r) => r.isFrequentlyPrepared).toList();
-
-  FoodDatabaseService get foodDb => _foodDb;
   GoogleSheetsConfig get sheetsConfig => _sheetsService.config;
-  OcrBillScannerService get ocrService => _ocrService;
 
-  // Daily Summary Calculation
-  DailyIntakeSummary get todaySummary {
-    final memberId = activeMember.id;
-    final entries = _intakeRepo.getEntriesForMemberAndDate(memberId, _selectedDate);
-    final budget = activeMember.customMacroBudget;
-    return NutritionAnalytics.analyzeDay(
-      date: _selectedDate,
-      entries: entries,
-      budget: budget,
-    );
-  }
+  BmiAssessment get activeMemberBmiAssessment => BmiCalculator.calculate(activeMember);
 
-  // Active Member BMI Assessment
-  BmiAssessment get activeMemberBmiAssessment {
-    return BmiCalculator.calculate(activeMember);
-  }
-
-  // Real-time AI Recommendations
   List<RecommendationItem> get currentRecommendations {
     return RecommendationEngine.generateRecommendations(
       member: activeMember,
-      todayIntake: todaySummary.totalNutrients,
+      todayIntake: todaySummary.totalMacros,
       inventory: _inventoryRepo.items,
     );
   }
 
-  // Actions & State Updates
+  // Store Connectors Getters
+  StoreAccountConfig get costcoConfig => _costcoService.config;
+  StoreAccountConfig get amazonFreshConfig => _amazonService.freshConfig;
+  StoreAccountConfig get amazonWholeFoodsConfig => _amazonService.wholeFoodsConfig;
+  List<StoreOrder> get costcoOrders => _costcoOrders;
+  List<StoreOrder> get amazonOrders => _amazonOrders;
+
+  // Actions & Tab Navigation
   void setTabIndex(int index) {
     _selectedTabIndex = index;
     notifyListeners();
@@ -104,61 +112,78 @@ class MainViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void switchActiveFamilyMember(String memberId) {
-    _authService.switchActiveMember(memberId);
-    notifyListeners();
-  }
-
-  Future<void> signInWithGoogle() async {
+  // Auth Operations
+  Future<void> loginWithGoogle() async {
     _setLoading(true);
     try {
-      await _authService.signInWithGoogle();
-      _setNotification('Signed in with Google as ${currentUser?.displayName}');
+      final user = await _authService.signInWithGoogle();
+      _setNotification('Welcome back, ${user.displayName}!');
     } finally {
       _setLoading(false);
+      notifyListeners();
     }
   }
 
-  Future<void> signInWithGithub() async {
+  Future<void> signInWithGoogle() => loginWithGoogle();
+
+  Future<void> loginWithGithub() async {
     _setLoading(true);
     try {
-      await _authService.signInWithGithub();
-      _setNotification('Signed in with GitHub as ${currentUser?.displayName}');
+      final user = await _authService.signInWithGithub();
+      _setNotification('Logged in with GitHub as ${user.displayName}');
     } finally {
       _setLoading(false);
+      notifyListeners();
     }
   }
 
-  Future<void> signInAsGuest() async {
+  Future<void> signInWithGithub() => loginWithGithub();
+
+  Future<void> loginAsGuest() async {
     _setLoading(true);
     try {
       await _authService.signInAsGuest();
-      _setNotification('Started demo session with sample family data');
+      _setNotification('Logged in as Demo Family Account');
     } finally {
       _setLoading(false);
+      notifyListeners();
     }
   }
 
-  Future<void> signOut() async {
+  Future<void> signInAsGuest() => loginAsGuest();
+
+  Future<void> logout() async {
     await _authService.signOut();
-    _selectedTabIndex = 0;
+    _setNotification('Signed out');
     notifyListeners();
   }
 
+  Future<void> signOut() => logout();
+
+  void switchActiveFamilyMember(String memberId) {
+    _authService.switchActiveMember(memberId);
+    _setNotification('Switched to ${activeMember.name}');
+    notifyListeners();
+  }
+
+  void switchFamilyMember(String memberId) => switchActiveFamilyMember(memberId);
+
   Future<void> updateActiveMemberProfile({
-    required String name,
-    required int age,
-    required String gender,
-    required double heightCm,
-    required double weightKg,
-    required String activityLevel,
-    required String ethnicity,
-    required List<String> dietaryPreferences,
-    required List<String> allergies,
-    required HealthGoal goal,
-    DailyMacroBudget? customBudget,
+    FamilyMemberProfile? profile,
+    String? name,
+    int? age,
+    String? gender,
+    double? heightCm,
+    double? weightKg,
+    String? activityLevel,
+    String? ethnicity,
+    List<String>? dietaryPreferences,
+    List<String>? allergies,
+    HealthGoal? goal,
+    DailyMacroBudget? customMacroBudget,
   }) async {
-    final updatedMember = activeMember.copyWith(
+    final current = activeMember;
+    final updated = profile ?? current.copyWith(
       name: name,
       age: age,
       gender: gender,
@@ -169,18 +194,10 @@ class MainViewModel extends ChangeNotifier {
       dietaryPreferences: dietaryPreferences,
       allergies: allergies,
       goal: goal,
-      customMacroBudget: customBudget ?? BmiCalculator.calculate(activeMember.copyWith(
-        heightCm: heightCm,
-        weightKg: weightKg,
-        age: age,
-        gender: gender,
-        activityLevel: activityLevel,
-        goal: goal,
-      )).recommendedBudget,
+      customMacroBudget: customMacroBudget,
     );
-
-    _authService.updateFamilyMember(updatedMember);
-    _setNotification('Profile & BMI goals updated for $name');
+    _authService.updateFamilyMember(updated);
+    _setNotification('Updated profile and goals for ${updated.name}');
     notifyListeners();
   }
 
@@ -190,111 +207,295 @@ class MainViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Inventory Management
+  // Inventory Operations
   Future<void> addGroceryItem(GroceryItem item) async {
     await _inventoryRepo.addItem(item);
-    _setNotification('Added ${item.name} to pantry inventory');
+    _setNotification('Added ${item.name} to pantry');
     notifyListeners();
   }
 
-  Future<void> updateGroceryItemQuantity(String id, double newRemaining) async {
-    final it = _inventoryRepo.items.firstWhere((x) => x.id == id);
-    await _inventoryRepo.updateItem(it.copyWith(remainingQuantity: newRemaining));
+  Future<void> updateGroceryItem(GroceryItem item) async {
+    await _inventoryRepo.updateItem(item);
     notifyListeners();
   }
 
-  Future<void> removeGroceryItem(String id) async {
-    await _inventoryRepo.removeItem(id);
-    _setNotification('Removed item from inventory');
+  Future<void> removeGroceryItem(String itemId) async {
+    await _inventoryRepo.deleteItem(itemId);
+    _setNotification('Removed item from pantry');
     notifyListeners();
   }
 
-  Future<void> processReceiptBill(String rawText, {String? storeName, String? imagePath}) async {
+  Future<void> updateItemQuantity(String itemId, double newRemaining) async {
+    await _inventoryRepo.updateQuantity(itemId, newRemaining);
+    notifyListeners();
+  }
+
+  Future<void> updateGroceryItemQuantity(String itemId, double newRemaining) => updateItemQuantity(itemId, newRemaining);
+
+  // Receipt Scanner Operations
+  Future<GroceryReceipt> scanReceiptImage(String imagePathOrBase64, {String? storeName}) async {
     _setLoading(true);
     try {
-      final receipt = await _ocrService.parseReceiptText(rawText, storeNameHint: storeName, imagePath: imagePath);
-      await _inventoryRepo.addItemsFromReceipt(receipt);
-      _setNotification('Scanned receipt from ${receipt.storeName}: Added ${receipt.extractedItems.length} items to inventory');
+      final receipt = await _ocrService.parseReceiptImage(imagePathOrBase64, storeNameHint: storeName);
+      return receipt;
     } finally {
       _setLoading(false);
       notifyListeners();
     }
   }
 
-  // Meal Intake Logging
-  Future<void> logFoodItem({
-    required FoodItem food,
+  Future<GroceryReceipt> parseReceiptText(String text, {String? storeName}) async {
+    _setLoading(true);
+    try {
+      final receipt = await _ocrService.parseReceiptText(text, storeNameHint: storeName);
+      return receipt;
+    } finally {
+      _setLoading(false);
+      notifyListeners();
+    }
+  }
+
+  Future<void> processReceiptBill(
+    dynamic billOrItems, {
+    String? storeName,
+    String? rawText,
+    List<GroceryItem>? items,
+    double? totalAmount,
+  }) async {
+    if (billOrItems is GroceryReceipt) {
+      await importReceiptItemsToPantry(billOrItems.extractedItems);
+    } else if (billOrItems is List<GroceryItem>) {
+      await importReceiptItemsToPantry(billOrItems);
+    } else if (items != null) {
+      await importReceiptItemsToPantry(items);
+    }
+  }
+
+  Future<void> importReceiptItemsToPantry(List<GroceryItem> items) async {
+    for (final it in items) {
+      await _inventoryRepo.addItem(it);
+    }
+    _setNotification('Imported ${items.length} grocery items into pantry!');
+    notifyListeners();
+  }
+
+  // Store Connectors Operations (Costco & Amazon)
+  Future<void> connectCostco(String membershipNumber, String email) async {
+    _isSyncingStore = true;
+    notifyListeners();
+    try {
+      final res = await _costcoService.connectAccount(
+        membershipNumber: membershipNumber,
+        accountEmail: email,
+      );
+      if (res.isConnected) {
+        _setNotification('Costco connected! Syncing recent warehouse purchase history...');
+        await syncCostcoPurchases();
+      } else {
+        _setNotification(res.syncMessage ?? 'Costco connection failed');
+      }
+    } finally {
+      _isSyncingStore = false;
+      notifyListeners();
+    }
+  }
+
+  void disconnectCostco() {
+    _costcoService.disconnect();
+    _costcoOrders.clear();
+    _setNotification('Disconnected Costco account');
+    notifyListeners();
+  }
+
+  Future<void> syncCostcoPurchases() async {
+    _isSyncingStore = true;
+    notifyListeners();
+    try {
+      final orders = await _costcoService.fetchPurchaseHistory();
+      _costcoOrders = orders;
+      int importedCount = 0;
+      for (final o in orders) {
+        if (o.isImportedToPantry) {
+          for (final it in o.items) {
+            final exists = _inventoryRepo.items.any((existing) => existing.id == it.id || existing.name.toLowerCase() == it.name.toLowerCase());
+            if (!exists) {
+              await _inventoryRepo.addItem(it);
+              importedCount++;
+            }
+          }
+        }
+      }
+      _setNotification('Costco sync complete! ($importedCount new items added to pantry)');
+    } finally {
+      _isSyncingStore = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> connectAmazon(String email, StoreType storeType) async {
+    _isSyncingStore = true;
+    notifyListeners();
+    try {
+      final res = await _amazonService.connectAmazonAccount(
+        accountEmail: email,
+        storeType: storeType,
+      );
+      if (res.isConnected) {
+        _setNotification('${storeType.displayName} connected! Syncing grocery orders...');
+        await syncAmazonPurchases();
+      } else {
+        _setNotification(res.syncMessage ?? 'Amazon connection failed');
+      }
+    } finally {
+      _isSyncingStore = false;
+      notifyListeners();
+    }
+  }
+
+  void disconnectAmazon(StoreType storeType) {
+    _amazonService.disconnect(storeType);
+    _amazonOrders.removeWhere((o) => o.store == storeType);
+    _setNotification('Disconnected ${storeType.displayName}');
+    notifyListeners();
+  }
+
+  Future<void> syncAmazonPurchases() async {
+    _isSyncingStore = true;
+    notifyListeners();
+    try {
+      final orders = await _amazonService.fetchPurchaseHistory();
+      _amazonOrders = orders;
+      int importedCount = 0;
+      for (final o in orders) {
+        if (o.isImportedToPantry) {
+          for (final it in o.items) {
+            final exists = _inventoryRepo.items.any((existing) => existing.id == it.id || existing.name.toLowerCase() == it.name.toLowerCase());
+            if (!exists) {
+              await _inventoryRepo.addItem(it);
+              importedCount++;
+            }
+          }
+        }
+      }
+      _setNotification('Amazon grocery sync complete! ($importedCount new items added to pantry)');
+    } finally {
+      _isSyncingStore = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> importStoreOrderToPantry(StoreOrder order) async {
+    int count = 0;
+    for (final it in order.items) {
+      final exists = _inventoryRepo.items.any((existing) => existing.id == it.id);
+      if (!exists) {
+        await _inventoryRepo.addItem(it);
+        count++;
+      }
+    }
+    _setNotification('Imported $count items from ${order.store.displayName} (Order #${order.orderId}) to pantry!');
+    notifyListeners();
+  }
+
+  // Food Intake Operations
+  Future<void> logFoodIntake({
+    required FoodItem foodItem,
     required MealType mealType,
     required double servings,
     String? notes,
   }) async {
-    final entry = MealEntry(
-      id: 'meal_${DateTime.now().millisecondsSinceEpoch}',
+    final entry = MealEntry.fromFoodItem(
+      food: foodItem,
       memberId: activeMember.id,
-      foodItemId: food.id,
-      foodName: food.name,
       mealType: mealType,
       servings: servings,
-      servingUnit: food.defaultServingUnit,
-      calculatedNutrients: food.nutrientsPerServing.scale(servings),
-      timestamp: DateTime(
-        _selectedDate.year,
-        _selectedDate.month,
-        _selectedDate.day,
-        DateTime.now().hour,
-        DateTime.now().minute,
-      ),
+      timestamp: DateTime.now(),
       notes: notes,
     );
 
-    await _intakeRepo.logMeal(entry);
-    _setNotification('Logged ${food.name} for ${mealType.displayName}');
+    await _intakeRepo.addEntry(entry);
+
+    // If matching inventory item exists, deduct proportional quantity
+    await _deductInventoryFromMeal(foodItem.name, servings);
+
+    _setNotification('Logged ${foodItem.name} (${mealType.displayName})');
     notifyListeners();
+  }
+
+  Future<void> logFoodItem({
+    FoodItem? food,
+    FoodItem? foodItem,
+    required MealType mealType,
+    required double servings,
+    String? notes,
+  }) {
+    final target = food ?? foodItem;
+    if (target == null) return Future.value();
+    return logFoodIntake(foodItem: target, mealType: mealType, servings: servings, notes: notes);
+  }
+
+  Future<void> removeIntakeEntry(String entryId) async {
+    await _intakeRepo.deleteEntry(entryId);
+    _setNotification('Removed meal entry');
+    notifyListeners();
+  }
+
+  Future<void> removeMealEntry(String entryId) => removeIntakeEntry(entryId);
+
+  Future<void> _deductInventoryFromMeal(String foodName, double servings) async {
+    final search = foodName.toLowerCase();
+    for (final it in _inventoryRepo.items) {
+      if (search.contains(it.name.toLowerCase()) || it.name.toLowerCase().contains(search.split(' ').first)) {
+        final deduct = (1.0 * servings).clamp(0.0, it.remainingQuantity);
+        if (deduct > 0) {
+          await _inventoryRepo.updateQuantity(it.id, it.remainingQuantity - deduct);
+        }
+        break;
+      }
+    }
+  }
+
+  // Food Database & Recipe Operations
+  List<FoodItem> searchFoodDatabase({String? query, String? cuisine}) {
+    return _foodDb.search(query: query ?? '', cuisine: cuisine);
+  }
+
+  List<String> get availableCuisines => _foodDb.getAllCuisines();
+
+  Future<void> quickLogRecipe({
+    required Recipe recipe,
+    required MealType mealType,
+    double servings = 1.0,
+  }) async {
+    final food = recipe.toFoodItem();
+    await logFoodIntake(
+      foodItem: food,
+      mealType: mealType,
+      servings: servings,
+      notes: 'Quick logged from recipe: ${recipe.name}',
+    );
+
+    for (final ing in recipe.ingredients) {
+      for (final it in _inventoryRepo.items) {
+        if (it.name.toLowerCase().contains(ing.name.toLowerCase())) {
+          final deduct = (ing.quantity * servings).clamp(0.0, it.remainingQuantity);
+          if (deduct > 0) {
+            await _inventoryRepo.updateQuantity(it.id, it.remainingQuantity - deduct);
+          }
+          break;
+        }
+      }
+    }
   }
 
   Future<void> logRecipeToMeal({
     required Recipe recipe,
     required MealType mealType,
-    required double servings,
-  }) async {
-    final entry = MealEntry(
-      id: 'meal_rec_${DateTime.now().millisecondsSinceEpoch}',
-      memberId: activeMember.id,
-      foodItemId: recipe.id,
-      foodName: recipe.name,
-      mealType: mealType,
-      servings: servings,
-      servingUnit: 'serving',
-      calculatedNutrients: recipe.nutrientsPerServing.scale(servings),
-      timestamp: DateTime(
-        _selectedDate.year,
-        _selectedDate.month,
-        _selectedDate.day,
-        DateTime.now().hour,
-        DateTime.now().minute,
-      ),
-      notes: 'Prepared from recipe catalog',
-    );
+    double servings = 1.0,
+  }) => quickLogRecipe(recipe: recipe, mealType: mealType, servings: servings);
 
-    await _intakeRepo.logMeal(entry);
-    _setNotification('Logged ${recipe.name} (${servings.toStringAsFixed(1)} serv) for ${mealType.displayName}');
-    notifyListeners();
-  }
-
-  Future<void> removeMealEntry(String id) async {
-    await _intakeRepo.removeEntry(id);
-    _setNotification('Deleted meal entry');
-    notifyListeners();
-  }
-
-  // Recipes
-  Future<void> toggleRecipeFavorite(String id) async {
-    await _recipeRepo.toggleFavorite(id);
-    notifyListeners();
-  }
-
-  Future<void> toggleRecipeFrequentlyPrepared(String id) async {
-    await _recipeRepo.toggleFrequentlyPrepared(id);
+  Future<void> toggleRecipeFavorite(String recipeId) async {
+    await _recipeRepo.toggleFavorite(recipeId);
     notifyListeners();
   }
 

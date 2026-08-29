@@ -66,6 +66,20 @@ class Recipe {
     required this.description,
   });
 
+  FoodItem toFoodItem() {
+    return FoodItem(
+      id: 'recipe_$id',
+      name: name,
+      cuisineCategory: cuisine,
+      defaultServingUnit: '1 serving',
+      defaultServingSize: 1.0,
+      nutrientsPerServing: nutrientsPerServing,
+      isVegetarian: dietaryTags.contains('Vegetarian'),
+      isVegan: dietaryTags.contains('Vegan'),
+      isGlutenFree: dietaryTags.contains('Gluten-Free'),
+    );
+  }
+
   Recipe copyWith({
     String? id,
     String? name,

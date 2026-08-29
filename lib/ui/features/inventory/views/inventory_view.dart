@@ -6,6 +6,9 @@ import 'package:family_food_analysis/ui/view_models/main_view_model.dart';
 import 'package:family_food_analysis/ui/core/glass_card.dart';
 import 'package:family_food_analysis/data/models/grocery_item.dart';
 
+import 'package:family_food_analysis/ui/features/inventory/widgets/store_connectors_modal.dart';
+import 'package:family_food_analysis/data/models/store_connector_models.dart';
+
 class InventoryView extends StatefulWidget {
   const InventoryView({super.key});
 
@@ -25,7 +28,7 @@ class _InventoryViewState extends State<InventoryView> {
     final filteredItems = vm.inventoryItems.where((it) {
       final matchesQuery = _searchQuery.isEmpty ||
           it.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          (it.storeName?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false);
+          (it.storeName != null && it.storeName!.toLowerCase().contains(_searchQuery.toLowerCase()));
       final matchesCategory = _selectedCategory == null || it.category == _selectedCategory;
       return matchesQuery && matchesCategory;
     }).toList();
@@ -54,6 +57,16 @@ class _InventoryViewState extends State<InventoryView> {
                   ],
                 ),
               ),
+              ElevatedButton.icon(
+                onPressed: () => _showStoreConnectorsModal(context),
+                icon: const Icon(Icons.hub_rounded, size: 18),
+                label: const Text('Store Connectors (Costco & Amazon)'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0060A9),
+                  foregroundColor: Colors.white,
+                ),
+              ),
+              const SizedBox(width: 10),
               ElevatedButton.icon(
                 onPressed: () => _showBillUploadDialog(context, vm),
                 icon: const Icon(Icons.receipt_long_rounded, size: 18),
@@ -330,6 +343,13 @@ class _InventoryViewState extends State<InventoryView> {
           ),
         ],
       ),
+    );
+  }
+
+  void _showStoreConnectorsModal(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => const StoreConnectorsModal(),
     );
   }
 
