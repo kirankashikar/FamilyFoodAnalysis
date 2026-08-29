@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../theme/app_theme.dart';
-import '../../view_models/main_view_model.dart';
-import '../../../core/glass_card.dart';
-import '../../../../data/models/user_profile.dart';
-import '../../../../data/models/nutrition_goals.dart';
-import '../../../../data/models/cultural_preset.dart';
+import 'package:family_food_analysis/ui/theme/app_theme.dart';
+import 'package:family_food_analysis/ui/view_models/main_view_model.dart';
+import 'package:family_food_analysis/ui/core/glass_card.dart';
+import 'package:family_food_analysis/data/models/user_profile.dart';
+import 'package:family_food_analysis/data/models/nutrition_goals.dart';
+import 'package:family_food_analysis/data/models/cultural_preset.dart';
+import 'package:family_food_analysis/domain/services/bmi_calculator.dart';
 
 class ProfileAndGoalsView extends StatefulWidget {
   const ProfileAndGoalsView({super.key});

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../theme/app_theme.dart';
-import '../view_models/main_view_model.dart';
-import '../core/glass_card.dart';
+import 'package:family_food_analysis/ui/theme/app_theme.dart';
+import 'package:family_food_analysis/ui/view_models/main_view_model.dart';
+import 'package:family_food_analysis/ui/core/glass_card.dart';
+import 'package:family_food_analysis/data/models/nutrition_goals.dart';
+import 'package:family_food_analysis/data/models/user_profile.dart';
 
 class ResponsiveScaffold extends StatelessWidget {
   final Widget body;
@@ -296,7 +298,7 @@ class ResponsiveScaffold extends StatelessWidget {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          'Sheet: ${vm.sheetsConfig.spreadsheetId.substring(0, 12)}...',
+                          'Sheet: ${vm.sheetsConfig.spreadsheetId.substring(0, vm.sheetsConfig.spreadsheetId.length > 12 ? 12 : vm.sheetsConfig.spreadsheetId.length)}...',
                           style: const TextStyle(fontSize: 10, color: Color(0xFF94A3B8)),
                         ),
                       ],
@@ -368,26 +370,27 @@ class ResponsiveScaffold extends StatelessWidget {
           ],
         ),
         actions: [
-          PopupMenuButton<String>(
-            icon: CircleAvatar(
-              radius: 14,
-              backgroundColor: AppColors.primary.withOpacity(0.2),
-              child: Text(
-                vm.activeMember.name.isNotEmpty ? vm.activeMember.name[0] : 'U',
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.primaryLight),
+          if (vm.currentUser != null)
+            PopupMenuButton<String>(
+              icon: CircleAvatar(
+                radius: 14,
+                backgroundColor: AppColors.primary.withOpacity(0.2),
+                child: Text(
+                  vm.activeMember.name.isNotEmpty ? vm.activeMember.name[0] : 'U',
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.primaryLight),
+                ),
               ),
+              tooltip: 'Family Members',
+              onSelected: (id) => vm.switchActiveFamilyMember(id),
+              itemBuilder: (ctx) {
+                return vm.currentUser!.familyMembers.map((m) {
+                  return PopupMenuItem(
+                    value: m.id,
+                    child: Text('${m.name} (${m.relationship})'),
+                  );
+                }).toList();
+              },
             ),
-            tooltip: 'Family Members',
-            onSelected: (id) => vm.switchActiveFamilyMember(id),
-            itemBuilder: (ctx) {
-              return vm.currentUser!.familyMembers.map((m) {
-                return PopupMenuItem(
-                  value: m.id,
-                  child: Text('${m.name} (${m.relationship})'),
-                );
-              }).toList();
-            },
-          ),
           IconButton(
             icon: const Icon(Icons.cloud_sync_rounded),
             onPressed: () => vm.syncToGoogleSheets(),

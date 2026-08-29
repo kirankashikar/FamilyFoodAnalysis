@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../theme/app_theme.dart';
-import '../../view_models/main_view_model.dart';
-import '../../../core/glass_card.dart';
-import '../../../../domain/services/recommendation_engine.dart';
-import '../../../../data/models/nutrition_goals.dart';
+import 'package:family_food_analysis/ui/theme/app_theme.dart';
+import 'package:family_food_analysis/ui/view_models/main_view_model.dart';
+import 'package:family_food_analysis/ui/core/glass_card.dart';
+import 'package:family_food_analysis/domain/services/recommendation_engine.dart';
+import 'package:family_food_analysis/data/models/nutrition_goals.dart';
 
 class RecommendationsView extends StatelessWidget {
   const RecommendationsView({super.key});
