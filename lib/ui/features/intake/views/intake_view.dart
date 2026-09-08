@@ -7,6 +7,7 @@ import 'package:family_food_analysis/ui/core/glass_card.dart';
 import 'package:family_food_analysis/data/models/food_item.dart';
 import 'package:family_food_analysis/data/models/nutrition_goals.dart';
 import 'package:family_food_analysis/domain/services/nutrition_analytics.dart';
+import 'package:family_food_analysis/ui/features/intake/widgets/snap_meal_sheet.dart';
 
 class IntakeView extends StatelessWidget {
   const IntakeView({super.key});
@@ -37,7 +38,7 @@ class IntakeView extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       'Track meals, analyze nutrient absorption, and optimize your ${vm.activeMember.goal.displayName.split(' ')[0]} goal.',
-                      style: const TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
+                      style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
                     ),
                   ],
                 ),
@@ -87,6 +88,23 @@ class IntakeView extends StatelessWidget {
             ],
           ),
 
+          const SizedBox(height: 16),
+
+          // Snap-a-Meal Entry Point
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () => SnapMealSheet.show(context),
+              icon: const Icon(Icons.camera_alt_rounded, size: 18),
+              label: const Text('Snap a Meal'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+              ),
+            ),
+          ),
+
           const SizedBox(height: 20),
 
           // Daily Progress Overview Bar
@@ -131,7 +149,7 @@ class IntakeView extends StatelessWidget {
                             ),
                             Text(
                               '${mealCalories.toStringAsFixed(0)} kcal total',
-                              style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
+                              style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
                             ),
                           ],
                         ),
@@ -191,7 +209,7 @@ class IntakeView extends StatelessWidget {
                                       const SizedBox(height: 2),
                                       Text(
                                         '${entry.servings.toStringAsFixed(1)} serving (${entry.servingUnit}) • ${nut.proteinGrams.toStringAsFixed(0)}g Protein, ${nut.carbsGrams.toStringAsFixed(0)}g Carbs, ${nut.fatGrams.toStringAsFixed(0)}g Fat, ${nut.fiberGrams.toStringAsFixed(1)}g Fiber',
-                                        style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
+                                        style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
                                       ),
                                     ],
                                   ),
@@ -225,7 +243,7 @@ class IntakeView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(label, style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8), fontWeight: FontWeight.w600)),
+          Text(label, style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w600)),
           const SizedBox(height: 4),
           Text(value, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: color)),
         ],
@@ -280,7 +298,7 @@ class _LogFoodModalState extends State<_LogFoodModal> {
         ],
       ),
       content: SizedBox(
-        width: 650,
+        width: (MediaQuery.of(context).size.width * 0.92).clamp(0, 650).toDouble(),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -339,7 +357,7 @@ class _LogFoodModalState extends State<_LogFoodModal> {
                       subtitle: Text('${item.cuisineCategory} • ${item.defaultServingUnit} • ${item.nutrientsPerServing.calories.toInt()} kcal'),
                       trailing: Text(
                         'P: ${item.nutrientsPerServing.proteinGrams.toInt()}g | C: ${item.nutrientsPerServing.carbsGrams.toInt()}g',
-                        style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
+                        style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
                       ),
                       onTap: () => setState(() => _selectedFood = item),
                     );
@@ -383,7 +401,7 @@ class _LogFoodModalState extends State<_LogFoodModal> {
                             onPressed: () => setState(() => _servings = _servings + 0.5),
                           ),
                           const SizedBox(width: 8),
-                          Text('(${_selectedFood!.defaultServingUnit})', style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8))),
+                          Text('(${_selectedFood!.defaultServingUnit})', style: const TextStyle(fontSize: 11, color: Color(0xFF64748B))),
                         ],
                       ),
                       const SizedBox(height: 4),

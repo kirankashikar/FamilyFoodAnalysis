@@ -68,7 +68,7 @@ class LoginView extends StatelessWidget {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 13,
-                      color: Color(0xFF94A3B8),
+                      color: Color(0xFF64748B),
                       height: 1.4,
                     ),
                   ),
@@ -119,7 +119,7 @@ class LoginView extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
-                            color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
+                            color: AppColors.muted(context),
                           ),
                         ),
                       ),

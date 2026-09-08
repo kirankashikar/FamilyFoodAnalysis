@@ -11,6 +11,7 @@ class LocalStorageService {
   static const String _keyRecipes = 'ffa_recipes';
   static const String _keyUserProfile = 'ffa_user_profile';
   static const String _keySheetsConfig = 'ffa_sheets_config';
+  static const String _keyDarkMode = 'ffa_dark_mode';
 
   Future<void> saveInventory(List<GroceryItem> items) async {
     try {
@@ -101,6 +102,21 @@ class LocalStorageService {
       if (str != null) {
         return GoogleSheetsConfig.fromJson(str);
       }
+    } catch (_) {}
+    return null;
+  }
+
+  Future<void> saveDarkMode(bool isDark) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_keyDarkMode, isDark);
+    } catch (_) {}
+  }
+
+  Future<bool?> loadDarkMode() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getBool(_keyDarkMode);
     } catch (_) {}
     return null;
   }

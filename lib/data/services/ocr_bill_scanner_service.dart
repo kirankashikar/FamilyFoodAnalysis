@@ -1,8 +1,82 @@
+import 'dart:io';
 import 'dart:math';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:google_mlkit_commons/google_mlkit_commons.dart';
+import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+import 'package:pdfx/pdfx.dart';
 import '../models/grocery_item.dart';
 
 class OcrBillScannerService {
+  // Lazily created: ML Kit only ships native (Android/iOS) plugin
+  // implementations, so constructing it on web (or in a plain Dart test
+  // harness) would throw — this way that only happens if OCR is actually used.
+  TextRecognizer? _textRecognizer;
+
+  /// Runs real on-device OCR (Google ML Kit) over a captured/picked image.
+  /// Throws on web — callers should catch and fall back to manual text entry
+  /// or a sample receipt there.
+  Future<String> recognizeTextFromImage(String imagePath) async {
+    if (kIsWeb) {
+      throw UnsupportedError('On-device OCR requires the mobile app (Android/iOS).');
+    }
+    _textRecognizer ??= TextRecognizer(script: TextRecognitionScript.latin);
+    final inputImage = InputImage.fromFilePath(imagePath);
+    final result = await _textRecognizer!.processImage(inputImage);
+    return result.text;
+  }
+
+  /// Renders every page of a PDF receipt to an image and OCRs each page,
+  /// concatenating the recognized text. Native/on-device via `pdfx`.
+  Future<String> extractTextFromPdf(String pdfPath) async {
+    if (kIsWeb) {
+      throw UnsupportedError('PDF scanning requires the mobile app (Android/iOS).');
+    }
+    final document = await PdfDocument.openFile(pdfPath);
+    final buffer = StringBuffer();
+    try {
+      for (var i = 1; i <= document.pagesCount; i++) {
+        final page = await document.getPage(i);
+        try {
+          final rendered = await page.render(
+            width: page.width * 2,
+            height: page.height * 2,
+            format: PdfPageImageFormat.png,
+          );
+          if (rendered != null) {
+            final tempFile = File(
+              '${Directory.systemTemp.path}/ffa_pdf_page_${DateTime.now().microsecondsSinceEpoch}_$i.png',
+            );
+            await tempFile.writeAsBytes(rendered.bytes);
+            try {
+              buffer.writeln(await recognizeTextFromImage(tempFile.path));
+            } finally {
+              await tempFile.delete().catchError((_) => tempFile);
+            }
+          }
+        } finally {
+          await page.close();
+        }
+      }
+    } finally {
+      await document.close();
+    }
+    return buffer.toString();
+  }
+
+  void dispose() {
+    _textRecognizer?.close();
+  }
+
   Future<GroceryReceipt> parseReceiptImage(String imagePathOrBase64, {String? storeNameHint}) async {
+    try {
+      final recognizedText = await recognizeTextFromImage(imagePathOrBase64);
+      if (recognizedText.trim().isNotEmpty) {
+        return parseReceiptText(recognizedText, storeNameHint: storeNameHint, imagePath: imagePathOrBase64);
+      }
+    } catch (_) {
+      // Falls through to the sample-receipt fallback below (e.g. on web,
+      // where on-device OCR isn't available).
+    }
     final sample = getSampleReceiptPresets().first;
     return parseReceiptText(sample.rawText, storeNameHint: storeNameHint ?? sample.storeName, imagePath: imagePathOrBase64);
   }

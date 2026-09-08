@@ -70,7 +70,7 @@ class MacroDonutChart extends StatelessWidget {
                     'of ${calTarget.toStringAsFixed(0)} kcal',
                     style: const TextStyle(
                       fontSize: 12,
-                      color: Color(0xFF94A3B8),
+                      color: Color(0xFF64748B),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -180,7 +180,7 @@ class MacroDonutChart extends StatelessWidget {
               ' / ${targetGrams.toStringAsFixed(0)}g',
               style: const TextStyle(
                 fontSize: 11,
-                color: Color(0xFF94A3B8),
+                color: Color(0xFF64748B),
               ),
             ),
           ],

@@ -78,7 +78,7 @@ class _ProfileAndGoalsViewState extends State<ProfileAndGoalsView> {
                     const SizedBox(height: 4),
                     const Text(
                       'Personalize BMI metrics, ethnic diet defaults, food goals, and nutritional targets for every family member.',
-                      style: TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
+                      style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
                     ),
                   ],
                 ),
@@ -165,7 +165,7 @@ class _ProfileAndGoalsViewState extends State<ProfileAndGoalsView> {
                 const SizedBox(height: 6),
                 const Text(
                   'Configuring ethnicity defaults food vocabulary (Dosa, Hummus, Rotis, Tofu), staple grains, and spices for intelligent menu suggestions.',
-                  style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+                  style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
                 ),
                 const SizedBox(height: 16),
                 Wrap(
@@ -195,7 +195,7 @@ class _ProfileAndGoalsViewState extends State<ProfileAndGoalsView> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(preset.name, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: isSelected ? AppColors.primaryLight : null)),
-                                Text('${preset.stapleCarbs.take(2).join(', ')}...', style: const TextStyle(fontSize: 10, color: Color(0xFF94A3B8))),
+                                Text('${preset.stapleCarbs.take(2).join(', ')}...', style: const TextStyle(fontSize: 10, color: Color(0xFF64748B))),
                               ],
                             ),
                           ],
@@ -307,7 +307,7 @@ class _ProfileAndGoalsViewState extends State<ProfileAndGoalsView> {
                         if (val != null) setState(() => _selectedGoal = val);
                       },
                       title: Text(goal.displayName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                      subtitle: Text(goal.description, style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8))),
+                      subtitle: Text(goal.description, style: const TextStyle(fontSize: 11, color: Color(0xFF64748B))),
                     ),
                   );
                 }),
@@ -458,7 +458,7 @@ class _ProfileAndGoalsViewState extends State<ProfileAndGoalsView> {
   Widget _buildScoreRow(String label, String val) {
     return Row(
       children: [
-        Text(label, style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8))),
+        Text(label, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B))),
         const Spacer(),
         Text(val, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
       ],

@@ -64,7 +64,7 @@ class _SheetsSyncViewState extends State<SheetsSyncView> with SingleTickerProvid
                     const SizedBox(height: 4),
                     Text(
                       'Connected to: ${config.googleAccountEmail ?? vm.currentUser?.email ?? 'Logged-in Google User'}',
-                      style: const TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
+                      style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
                     ),
                   ],
                 ),
@@ -116,7 +116,7 @@ class _SheetsSyncViewState extends State<SheetsSyncView> with SingleTickerProvid
                       const SizedBox(height: 4),
                       Text(
                         'Last Sync: ${config.lastSyncTime != null ? dateFormat.format(config.lastSyncTime!) : 'Never'} • 2 Active Tabs',
-                        style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+                        style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
                       ),
                     ],
                   ),

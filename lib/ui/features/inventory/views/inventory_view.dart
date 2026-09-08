@@ -7,7 +7,7 @@ import 'package:family_food_analysis/ui/core/glass_card.dart';
 import 'package:family_food_analysis/data/models/grocery_item.dart';
 
 import 'package:family_food_analysis/ui/features/inventory/widgets/store_connectors_modal.dart';
-import 'package:family_food_analysis/data/models/store_connector_models.dart';
+import 'package:family_food_analysis/ui/features/inventory/widgets/add_bill_sheet.dart';
 
 class InventoryView extends StatefulWidget {
   const InventoryView({super.key});
@@ -39,44 +39,34 @@ class _InventoryViewState extends State<InventoryView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header Bar
-          Row(
+          Text(
+            'Pantry & Grocery Inventory',
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, letterSpacing: -0.5),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '${vm.inventoryItems.length} tracked items • Auto-synchronized to Google Sheets (${vm.sheetsConfig.inventorySheetName})',
+            style: TextStyle(fontSize: 13, color: AppColors.muted(context)),
+          ),
+          const SizedBox(height: 14),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Pantry & Grocery Inventory',
-                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, letterSpacing: -0.5),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${vm.inventoryItems.length} tracked items • Auto-synchronized to Google Sheets (${vm.sheetsConfig.inventorySheetName})',
-                      style: const TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
-                    ),
-                  ],
-                ),
-              ),
               ElevatedButton.icon(
-                onPressed: () => _showStoreConnectorsModal(context),
-                icon: const Icon(Icons.hub_rounded, size: 18),
-                label: const Text('Store Connectors (Costco & Amazon)'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0060A9),
-                  foregroundColor: Colors.white,
-                ),
-              ),
-              const SizedBox(width: 10),
-              ElevatedButton.icon(
-                onPressed: () => _showBillUploadDialog(context, vm),
+                onPressed: () => AddBillSheet.show(context),
                 icon: const Icon(Icons.receipt_long_rounded, size: 18),
-                label: const Text('Upload Bill / OCR'),
+                label: Text(isDesktop ? 'Add Grocery Bill' : 'Add Bill'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                 ),
               ),
-              const SizedBox(width: 10),
+              OutlinedButton.icon(
+                onPressed: () => _showStoreConnectorsModal(context),
+                icon: const Icon(Icons.hub_rounded, size: 18),
+                label: Text(isDesktop ? 'Store Connectors (Costco & Amazon)' : 'Connectors'),
+              ),
               OutlinedButton.icon(
                 onPressed: () => _showManualAddItemDialog(context, vm),
                 icon: const Icon(Icons.add, size: 18),
@@ -114,7 +104,7 @@ class _InventoryViewState extends State<InventoryView> {
                       ),
                       Text(
                         'Pantry inventory changes automatically sync to your connected Google Sheet tab "${vm.sheetsConfig.inventorySheetName}".',
-                        style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
+                        style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
                       ),
                     ],
                   ),
@@ -261,7 +251,7 @@ class _InventoryViewState extends State<InventoryView> {
                         ),
                         child: Text(
                           item.storeName!,
-                          style: const TextStyle(fontSize: 10, color: Color(0xFF94A3B8)),
+                          style: const TextStyle(fontSize: 10, color: Color(0xFF64748B)),
                         ),
                       ),
                     ],
@@ -272,7 +262,7 @@ class _InventoryViewState extends State<InventoryView> {
                   children: [
                     Text(
                       item.category.displayName,
-                      style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
+                      style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
                     ),
                     const SizedBox(width: 10),
                     if (item.expiryDate != null)
@@ -347,17 +337,7 @@ class _InventoryViewState extends State<InventoryView> {
   }
 
   void _showStoreConnectorsModal(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (ctx) => const StoreConnectorsModal(),
-    );
-  }
-
-  void _showBillUploadDialog(BuildContext context, MainViewModel vm) {
-    showDialog(
-      context: context,
-      builder: (ctx) => _BillUploadDialog(vm: vm),
-    );
+    StoreConnectorsModal.show(context);
   }
 
   void _showManualAddItemDialog(BuildContext context, MainViewModel vm) {
@@ -476,199 +456,3 @@ class _InventoryViewState extends State<InventoryView> {
   }
 }
 
-class _BillUploadDialog extends StatefulWidget {
-  final MainViewModel vm;
-
-  const _BillUploadDialog({required this.vm});
-
-  @override
-  State<_BillUploadDialog> createState() => _BillUploadDialogState();
-}
-
-class _BillUploadDialogState extends State<_BillUploadDialog> {
-  final TextEditingController _receiptTextCtrl = TextEditingController();
-  final TextEditingController _storeCtrl = TextEditingController(text: 'Patel Brothers Indian Market');
-  bool _isScanning = false;
-  GroceryReceipt? _parsedReceipt;
-
-  @override
-  void initState() {
-    super.initState();
-    // Default to Indian Grocery Mart sample receipt
-    final sample = widget.vm.ocrService.getSampleReceiptPresets().first;
-    _receiptTextCtrl.text = sample.rawText;
-    _storeCtrl.text = sample.storeName;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final presets = widget.vm.ocrService.getSampleReceiptPresets();
-
-    return AlertDialog(
-      title: const Row(
-        children: [
-          Icon(Icons.document_scanner_rounded, color: AppColors.primary),
-          SizedBox(width: 8),
-          Text('Upload Grocery Bill / OCR'),
-        ],
-      ),
-      content: SizedBox(
-        width: 650,
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'Upload a receipt image / PDF or select a sample receipt to parse line items directly into your pantry inventory and Google Sheets.',
-                style: TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
-              ),
-              const SizedBox(height: 16),
-
-              // Sample Presets Chips
-              const Text('Load Preset Receipt Samples:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                children: presets.map((p) {
-                  return ActionChip(
-                    avatar: const Icon(Icons.receipt_rounded, size: 16),
-                    label: Text(p.storeName),
-                    onPressed: () {
-                      setState(() {
-                        _receiptTextCtrl.text = p.rawText;
-                        _storeCtrl.text = p.storeName;
-                        _parsedReceipt = null;
-                      });
-                    },
-                  );
-                }).toList(),
-              ),
-
-              const SizedBox(height: 16),
-
-              TextField(
-                controller: _storeCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Store Name / Supermarket',
-                  prefixIcon: Icon(Icons.store_rounded),
-                ),
-              ),
-
-              const SizedBox(height: 12),
-
-              TextField(
-                controller: _receiptTextCtrl,
-                maxLines: 8,
-                style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
-                decoration: const InputDecoration(
-                  labelText: 'Receipt OCR Text Stream / Line Items',
-                  hintText: 'Item Name   Qty   Price...',
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Parse Action Button
-              Row(
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: _isScanning ? null : _runOcrScan,
-                    icon: _isScanning
-                        ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : const Icon(Icons.bolt_rounded, size: 18),
-                    label: Text(_isScanning ? 'Extracting Items...' : 'Extract & Parse Items'),
-                  ),
-                  const SizedBox(width: 12),
-                  OutlinedButton.icon(
-                    onPressed: () {
-                      // Simulated camera / file upload
-                      setState(() {
-                        final sample = widget.vm.ocrService.getSampleReceiptPresets()[1];
-                        _receiptTextCtrl.text = sample.rawText;
-                        _storeCtrl.text = sample.storeName;
-                        _parsedReceipt = null;
-                      });
-                    },
-                    icon: const Icon(Icons.camera_alt_outlined, size: 18),
-                    label: const Text('Pick Image / Camera'),
-                  ),
-                ],
-              ),
-
-              if (_parsedReceipt != null) ...[
-                const SizedBox(height: 20),
-                const Divider(),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    const Icon(Icons.check_circle_rounded, color: AppColors.primary, size: 18),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Detected ${_parsedReceipt!.extractedItems.length} items (Total: \$${_parsedReceipt!.totalAmount.toStringAsFixed(2)})',
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Container(
-                  constraints: const BoxConstraints(maxHeight: 180),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? AppColors.darkCardElevated
-                        : AppColors.lightCardElevated,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: _parsedReceipt!.extractedItems.length,
-                    itemBuilder: (ctx, i) {
-                      final it = _parsedReceipt!.extractedItems[i];
-                      return ListTile(
-                        dense: true,
-                        leading: Text(it.category.iconEmoji),
-                        title: Text(it.name, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                        subtitle: Text('${it.quantity} ${it.unit} • ${it.category.displayName}'),
-                        trailing: Text('\$${it.estimatedCost.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold)),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Close'),
-        ),
-        if (_parsedReceipt != null)
-          ElevatedButton.icon(
-            onPressed: () {
-              widget.vm.processReceiptBill(
-                _receiptTextCtrl.text,
-                storeName: _storeCtrl.text,
-              );
-              Navigator.pop(context);
-            },
-            icon: const Icon(Icons.save_rounded, size: 18),
-            label: const Text('Confirm & Save to Inventory'),
-          ),
-      ],
-    );
-  }
-
-  Future<void> _runOcrScan() async {
-    setState(() => _isScanning = true);
-    final receipt = await widget.vm.ocrService.parseReceiptText(
-      _receiptTextCtrl.text,
-      storeNameHint: _storeCtrl.text,
-    );
-    setState(() {
-      _isScanning = false;
-      _parsedReceipt = receipt;
-    });
-  }
-}

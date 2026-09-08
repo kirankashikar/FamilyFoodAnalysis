@@ -50,7 +50,7 @@ class DashboardView extends StatelessWidget {
                     '${DateFormat('EEEE, MMMM d').format(vm.selectedDate)} • Goal: ${vm.activeMember.goal.displayName}',
                     style: const TextStyle(
                       fontSize: 13,
-                      color: Color(0xFF94A3B8),
+                      color: Color(0xFF64748B),
                     ),
                   ),
                 ],
@@ -247,7 +247,7 @@ class DashboardView extends StatelessWidget {
                       assessment.bmi.toStringAsFixed(1),
                       style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.primaryLight),
                     ),
-                    const Text('BMI', style: TextStyle(fontSize: 11, color: Color(0xFF94A3B8))),
+                    const Text('BMI', style: TextStyle(fontSize: 11, color: Color(0xFF64748B))),
                   ],
                 ),
               ),
@@ -263,7 +263,7 @@ class DashboardView extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       'BMR: ${assessment.bmr.toInt()} kcal • TDEE: ${assessment.tdee.toInt()} kcal/day',
-                      style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
+                      style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
                     ),
                   ],
                 ),
@@ -295,7 +295,7 @@ class DashboardView extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   'Preferences: ${member.dietaryPreferences.join(', ')}',
-                  style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
+                  style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
                 ),
               ],
             ),
@@ -330,7 +330,7 @@ class DashboardView extends StatelessWidget {
               padding: EdgeInsets.symmetric(vertical: 8),
               child: Text(
                 '✨ All pantry ingredients are fresh!',
-                style: TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
+                style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
               ),
             )
           else
@@ -389,7 +389,7 @@ class DashboardView extends StatelessWidget {
           if (recs.isEmpty)
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 8),
-              child: Text('Goals are perfectly on track today!', style: TextStyle(fontSize: 13, color: Color(0xFF94A3B8))),
+              child: Text('Goals are perfectly on track today!', style: TextStyle(fontSize: 13, color: Color(0xFF64748B))),
             )
           else
             ...recs.take(2).map((r) {
@@ -461,7 +461,7 @@ class DashboardView extends StatelessWidget {
                       const SizedBox(width: 6),
                       Text(type.displayName, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                       const SizedBox(width: 8),
-                      Text('(${meals.length} items)', style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8))),
+                      Text('(${meals.length} items)', style: const TextStyle(fontSize: 11, color: Color(0xFF64748B))),
                     ],
                   ),
                   const SizedBox(height: 6),
@@ -493,7 +493,7 @@ class DashboardView extends StatelessWidget {
                                   ),
                                   Text(
                                     'P: ${m.calculatedNutrients.proteinGrams.toStringAsFixed(0)}g • C: ${m.calculatedNutrients.carbsGrams.toStringAsFixed(0)}g • F: ${m.calculatedNutrients.fatGrams.toStringAsFixed(0)}g',
-                                    style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
+                                    style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
                                   ),
                                 ],
                               ),

@@ -50,7 +50,7 @@ class _RecipesViewState extends State<RecipesView> {
                     const SizedBox(height: 4),
                     const Text(
                       'Frequently prepared home dishes, matched against your available pantry inventory with 1-click meal logging.',
-                      style: TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
+                      style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
                     ),
                   ],
                 ),
@@ -164,7 +164,7 @@ class _RecipesViewState extends State<RecipesView> {
                     const SizedBox(height: 2),
                     Text(
                       '${recipe.cuisine} • ${recipe.prepTimeMinutes + recipe.cookTimeMinutes} mins • ${recipe.defaultServings} servings',
-                      style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
+                      style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
                     ),
                   ],
                 ),
@@ -225,7 +225,7 @@ class _RecipesViewState extends State<RecipesView> {
                   ),
                   Text(
                     'P: ${nut.proteinGrams.toStringAsFixed(0)}g | C: ${nut.carbsGrams.toStringAsFixed(0)}g | F: ${nut.fatGrams.toStringAsFixed(0)}g',
-                    style: const TextStyle(fontSize: 10, color: Color(0xFF94A3B8)),
+                    style: const TextStyle(fontSize: 10, color: Color(0xFF64748B)),
                   ),
                 ],
               ),

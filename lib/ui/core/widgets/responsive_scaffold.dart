@@ -102,7 +102,7 @@ class ResponsiveScaffold extends StatelessWidget {
                                 'Nutrition & Grocery AI',
                                 style: TextStyle(
                                   fontSize: 11,
-                                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                  color: AppColors.muted(context),
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -157,7 +157,7 @@ class ResponsiveScaffold extends StatelessWidget {
                                     '${vm.activeMember.relationship} • ${vm.activeMember.goal.displayName.split(' ')[0]}',
                                     style: const TextStyle(
                                       fontSize: 10,
-                                      color: Color(0xFF94A3B8),
+                                      color: Color(0xFF64748B),
                                     ),
                                     overflow: TextOverflow.ellipsis,
                                   ),
@@ -226,7 +226,7 @@ class ResponsiveScaffold extends StatelessWidget {
                                 children: [
                                   Icon(
                                     item.icon,
-                                    color: isSelected ? AppColors.primaryLight : (isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B)),
+                                    color: isSelected ? AppColors.primaryLight : AppColors.muted(context),
                                     size: 22,
                                   ),
                                   const SizedBox(width: 14),
@@ -299,7 +299,7 @@ class ResponsiveScaffold extends StatelessWidget {
                         const SizedBox(height: 6),
                         Text(
                           'Sheet: ${vm.sheetsConfig.spreadsheetId.substring(0, vm.sheetsConfig.spreadsheetId.length > 12 ? 12 : vm.sheetsConfig.spreadsheetId.length)}...',
-                          style: const TextStyle(fontSize: 10, color: Color(0xFF94A3B8)),
+                          style: const TextStyle(fontSize: 10, color: Color(0xFF64748B)),
                         ),
                       ],
                     ),
@@ -343,6 +343,11 @@ class ResponsiveScaffold extends StatelessWidget {
                       ),
                       const SizedBox(width: 16),
                     ],
+                    IconButton(
+                      icon: Icon(isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded),
+                      tooltip: isDark ? 'Switch to bright mode' : 'Switch to dark mode',
+                      onPressed: () => vm.toggleDarkMode(),
+                    ),
                     IconButton(
                       icon: const Icon(Icons.sync_rounded),
                       tooltip: 'Sync with Google Sheets',
@@ -392,27 +397,99 @@ class ResponsiveScaffold extends StatelessWidget {
               },
             ),
           IconButton(
+            icon: Icon(isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded),
+            tooltip: isDark ? 'Switch to bright mode' : 'Switch to dark mode',
+            onPressed: () => vm.toggleDarkMode(),
+          ),
+          IconButton(
             icon: const Icon(Icons.cloud_sync_rounded),
             onPressed: () => vm.syncToGoogleSheets(),
           ),
         ],
       ),
       body: body,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: vm.selectedTabIndex,
-        onDestinationSelected: (idx) => vm.setTabIndex(idx),
-        destinations: navItems.map((item) {
+      bottomNavigationBar: _buildMobileNavBar(context, vm, navItems),
+    );
+  }
+
+  // Mobile keeps only the top 4 destinations on the bar itself (a 7-item
+  // bottom nav is cramped on phones); everything else lives behind "More".
+  static const List<int> _primaryIndices = [0, 1, 2, 3];
+  static const List<int> _moreIndices = [4, 5, 6];
+
+  Widget _buildMobileNavBar(BuildContext context, MainViewModel vm, List<_NavDestination> navItems) {
+    final isOnMorePage = _moreIndices.contains(vm.selectedTabIndex);
+    final moreHasBadge = _moreIndices.any((i) => navItems[i].badgeCount != null);
+    final selectedIndex = isOnMorePage ? 4 : _primaryIndices.indexOf(vm.selectedTabIndex).clamp(0, 3);
+
+    return NavigationBar(
+      selectedIndex: selectedIndex,
+      onDestinationSelected: (idx) {
+        if (idx == 4) {
+          _showMoreSheet(context, vm, navItems);
+        } else {
+          vm.setTabIndex(_primaryIndices[idx]);
+        }
+      },
+      destinations: [
+        ..._primaryIndices.map((i) {
+          final item = navItems[i];
           return NavigationDestination(
             icon: item.badgeCount != null
-                ? Badge(
-                    label: Text('${item.badgeCount}'),
-                    child: Icon(item.icon),
-                  )
+                ? Badge(label: Text('${item.badgeCount}'), child: Icon(item.icon))
                 : Icon(item.icon),
             label: item.label.split(' ')[0],
           );
-        }).toList(),
+        }),
+        NavigationDestination(
+          icon: moreHasBadge
+              ? const Badge(child: Icon(Icons.more_horiz_rounded))
+              : const Icon(Icons.more_horiz_rounded),
+          label: 'More',
+        ),
+      ],
+    );
+  }
+
+  void _showMoreSheet(BuildContext context, MainViewModel vm, List<_NavDestination> navItems) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: _moreIndices.map((i) {
+              final item = navItems[i];
+              return ListTile(
+                leading: Icon(item.icon, color: AppColors.primary),
+                title: Text(item.label, style: const TextStyle(fontWeight: FontWeight.w600)),
+                trailing: item.badgeCount != null
+                    ? Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          '${item.badgeCount}',
+                          style: const TextStyle(color: Colors.black, fontSize: 11, fontWeight: FontWeight.w800),
+                        ),
+                      )
+                    : null,
+                onTap: () {
+                  vm.setTabIndex(i);
+                  Navigator.of(ctx).pop();
+                },
+              );
+            }).toList(),
+          ),
+        );
+      },
     );
   }
 }

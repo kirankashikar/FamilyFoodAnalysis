@@ -10,8 +10,10 @@ import '../../data/services/auth_service.dart';
 import '../../data/services/food_database_service.dart';
 import '../../data/services/google_sheets_service.dart';
 import '../../data/services/ocr_bill_scanner_service.dart';
+import '../../data/services/food_recognition_service.dart';
 import '../../data/services/costco_connector_service.dart';
 import '../../data/services/amazon_connector_service.dart';
+import '../../data/services/local_storage_service.dart';
 import '../../data/repositories/app_repositories.dart';
 import '../../domain/services/bmi_calculator.dart';
 import '../../domain/services/nutrition_analytics.dart';
@@ -25,14 +27,18 @@ class MainViewModel extends ChangeNotifier {
   final FoodDatabaseService _foodDb;
   final GoogleSheetsService _sheetsService;
   final OcrBillScannerService _ocrService;
+  final FoodRecognitionService _foodRecognitionService;
   final CostcoConnectorService _costcoService;
   final AmazonConnectorService _amazonService;
+  final LocalStorageService _localStorage;
 
   int _selectedTabIndex = 0;
   DateTime _selectedDate = DateTime.now();
   bool _isLoading = false;
   bool _isSyncingStore = false;
+  bool _isDarkMode = false; // Bright/light is the default appearance
   String? _statusNotification;
+  String? _pendingSharedFilePath;
 
   List<StoreOrder> _costcoOrders = [];
   List<StoreOrder> _amazonOrders = [];
@@ -45,6 +51,8 @@ class MainViewModel extends ChangeNotifier {
     required FoodDatabaseService foodDb,
     required GoogleSheetsService sheetsService,
     required OcrBillScannerService ocrService,
+    required FoodRecognitionService foodRecognitionService,
+    required LocalStorageService localStorage,
     CostcoConnectorService? costcoService,
     AmazonConnectorService? amazonService,
   })  : _authService = authService,
@@ -54,21 +62,36 @@ class MainViewModel extends ChangeNotifier {
         _foodDb = foodDb,
         _sheetsService = sheetsService,
         _ocrService = ocrService,
+        _foodRecognitionService = foodRecognitionService,
+        _localStorage = localStorage,
         _costcoService = costcoService ?? CostcoConnectorService(),
-        _amazonService = amazonService ?? AmazonConnectorService();
+        _amazonService = amazonService ?? AmazonConnectorService() {
+    _loadThemePreference();
+  }
+
+  Future<void> _loadThemePreference() async {
+    final savedIsDark = await _localStorage.loadDarkMode();
+    if (savedIsDark != null && savedIsDark != _isDarkMode) {
+      _isDarkMode = savedIsDark;
+      notifyListeners();
+    }
+  }
 
   // Getters
   int get selectedTabIndex => _selectedTabIndex;
   DateTime get selectedDate => _selectedDate;
   bool get isLoading => _isLoading;
   bool get isSyncingStore => _isSyncingStore;
+  bool get isDarkMode => _isDarkMode;
   String? get statusNotification => _statusNotification;
+  String? get pendingSharedFilePath => _pendingSharedFilePath;
 
   UserProfile? get currentUser => _authService.currentUser;
   bool get isAuthenticated => _authService.isAuthenticated;
   FamilyMemberProfile get activeMember => _authService.currentUser?.activeMember ?? _createFallbackMember();
 
   OcrBillScannerService get ocrService => _ocrService;
+  FoodRecognitionService get foodRecognitionService => _foodRecognitionService;
   FoodDatabaseService get foodDb => _foodDb;
   InventoryRepository get inventoryRepo => _inventoryRepo;
   IntakeRepository get intakeRepo => _intakeRepo;
@@ -110,6 +133,23 @@ class MainViewModel extends ChangeNotifier {
   void setSelectedDate(DateTime date) {
     _selectedDate = date;
     notifyListeners();
+  }
+
+  void toggleDarkMode() {
+    _isDarkMode = !_isDarkMode;
+    notifyListeners();
+    _localStorage.saveDarkMode(_isDarkMode);
+  }
+
+  /// Set when a receipt image/PDF is shared into the app from another app
+  /// (e.g. forwarding a receipt email and tapping Share -> FamilyFood).
+  void setPendingSharedFile(String path) {
+    _pendingSharedFilePath = path;
+    notifyListeners();
+  }
+
+  void consumePendingSharedFile() {
+    _pendingSharedFilePath = null;
   }
 
   // Auth Operations

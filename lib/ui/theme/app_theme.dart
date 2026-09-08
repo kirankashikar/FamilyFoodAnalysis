@@ -33,6 +33,14 @@ class AppColors {
   static const Color fiberColor = Color(0xFF10B981); // Emerald
   static const Color sodiumColor = Color(0xFF06B6D4); // Cyan
   static const Color caloriesColor = Color(0xFF8B5CF6); // Violet
+
+  // Theme-aware muted/secondary text. Slate-400 reads fine on dark
+  // backgrounds but is too low-contrast on light ones (Slate-500 instead).
+  static Color muted(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? const Color(0xFF94A3B8) // Slate 400
+        : const Color(0xFF64748B); // Slate 500
+  }
 }
 
 class AppTheme {
@@ -123,7 +131,7 @@ class AppTheme {
           borderSide: const BorderSide(color: AppColors.primary, width: 2),
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        hintStyle: const TextStyle(color: Color(0xFF64748B)),
+        hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
       ),
     );
   }
@@ -201,7 +209,7 @@ class AppTheme {
           borderSide: const BorderSide(color: AppColors.primary, width: 2),
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
+        hintStyle: const TextStyle(color: Color(0xFF64748B)),
       ),
     );
   }

@@ -44,7 +44,7 @@ class NutrientProgressBar extends StatelessWidget {
                 '($subtitle)',
                 style: const TextStyle(
                   fontSize: 11,
-                  color: Color(0xFF94A3B8),
+                  color: Color(0xFF64748B),
                 ),
               ),
             ],
@@ -61,7 +61,7 @@ class NutrientProgressBar extends StatelessWidget {
               ' / ${target.toStringAsFixed(0)} $unit',
               style: const TextStyle(
                 fontSize: 11,
-                color: Color(0xFF94A3B8),
+                color: Color(0xFF64748B),
               ),
             ),
           ],

@@ -16,6 +16,13 @@ dependencies:
   intl: ^0.19.0
   http: ^1.2.1
   shared_preferences: ^2.2.3
+  image_picker: ^1.2.3
+  google_mlkit_commons: ^0.13.0
+  google_mlkit_text_recognition: ^0.17.1
+  google_mlkit_image_labeling: ^0.16.1
+  file_picker: ^8.1.2
+  pdfx: ^2.11.0
+  receive_sharing_intent: ^1.9.0
 
 dev_dependencies:
   flutter_test:

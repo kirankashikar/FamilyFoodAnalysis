@@ -9,6 +9,22 @@ import 'package:family_food_analysis/data/models/grocery_item.dart';
 class StoreConnectorsModal extends StatefulWidget {
   const StoreConnectorsModal({super.key});
 
+  /// Shows the modal responsively: a centered dialog on desktop widths, or a
+  /// full-height bottom sheet on mobile.
+  static void show(BuildContext context) {
+    final isDesktop = MediaQuery.of(context).size.width >= 900;
+    if (isDesktop) {
+      showDialog(context: context, builder: (ctx) => const StoreConnectorsModal());
+    } else {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        useSafeArea: true,
+        builder: (ctx) => const StoreConnectorsModal(),
+      );
+    }
+  }
+
   @override
   State<StoreConnectorsModal> createState() => _StoreConnectorsModalState();
 }
@@ -32,100 +48,121 @@ class _StoreConnectorsModalState extends State<StoreConnectorsModal> with Single
   Widget build(BuildContext context) {
     final vm = context.watch<MainViewModel>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDesktop = MediaQuery.of(context).size.width >= 900;
+
+    final content = Container(
+      width: isDesktop ? 820 : double.infinity,
+      height: isDesktop ? 680 : MediaQuery.of(context).size.height * 0.92,
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+        borderRadius: isDesktop
+            ? BorderRadius.circular(24)
+            : const BorderRadius.vertical(top: Radius.circular(20)),
+        border: isDesktop
+            ? Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder)
+            : null,
+        boxShadow: isDesktop
+            ? [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.35),
+                  blurRadius: 30,
+                  offset: const Offset(0, 10),
+                )
+              ]
+            : null,
+      ),
+      child: Column(
+        children: [
+          if (!isDesktop)
+            Container(
+              margin: const EdgeInsets.only(top: 10),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          // Modal Header
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 20, 20, 16),
+            child: Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF0060A9), Color(0xFF00A8E1)],
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.hub_rounded, color: Colors.white, size: 24),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Store Connectors Hub',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      Text(
+                        'Automate grocery inventory sync from Costco & Amazon purchases',
+                        style: TextStyle(fontSize: 12, color: AppColors.muted(context)),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close_rounded),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
+            ),
+          ),
+
+          TabBar(
+            controller: _tabController,
+            tabs: const [
+              Tab(
+                icon: Icon(Icons.store_rounded, size: 18),
+                text: 'Connected Stores',
+              ),
+              Tab(
+                icon: Icon(Icons.receipt_long_rounded, size: 18),
+                text: 'Purchase Order History',
+              ),
+            ],
+          ),
+
+          // Tab Views
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _buildConnectedStoresTab(context, vm, isDark),
+                _buildOrderHistoryTab(context, vm, isDark),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (!isDesktop) {
+      return SafeArea(child: content);
+    }
 
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-      child: Container(
-        width: 820,
-        height: 680,
-        decoration: BoxDecoration(
-          color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.35),
-              blurRadius: 30,
-              offset: const Offset(0, 10),
-            )
-          ],
-        ),
-        child: Column(
-          children: [
-            // Modal Header
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 20, 20, 16),
-              child: Row(
-                children: [
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF0060A9), Color(0xFF00A8E1)],
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(Icons.hub_rounded, color: Colors.white, size: 24),
-                  ),
-                  const SizedBox(width: 14),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Store Connectors Hub',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: -0.5,
-                          ),
-                        ),
-                        Text(
-                          'Automate grocery inventory sync from Costco & Amazon purchases',
-                          style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
-                        ),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close_rounded),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ],
-              ),
-            ),
-
-            TabBar(
-              controller: _tabController,
-              tabs: const [
-                Tab(
-                  icon: Icon(Icons.store_rounded, size: 18),
-                  text: 'Connected Stores',
-                ),
-                Tab(
-                  icon: Icon(Icons.receipt_long_rounded, size: 18),
-                  text: 'Purchase Order History',
-                ),
-              ],
-            ),
-
-            // Tab Views
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  _buildConnectedStoresTab(context, vm, isDark),
-                  _buildOrderHistoryTab(context, vm, isDark),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+      child: content,
     );
   }
 
@@ -274,7 +311,7 @@ class _StoreConnectorsModalState extends State<StoreConnectorsModal> with Single
                     const SizedBox(height: 4),
                     Text(
                       description,
-                      style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+                      style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
                     ),
                   ],
                 ),
@@ -287,11 +324,11 @@ class _StoreConnectorsModalState extends State<StoreConnectorsModal> with Single
           Row(
             children: [
               if (isConnected && config.lastSyncTime != null) ...[
-                const Icon(Icons.sync_rounded, size: 14, color: Color(0xFF94A3B8)),
+                const Icon(Icons.sync_rounded, size: 14, color: Color(0xFF64748B)),
                 const SizedBox(width: 6),
                 Text(
                   'Last synced: ${_formatDate(config.lastSyncTime!)}',
-                  style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
+                  style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
                 ),
                 const Spacer(),
               ] else ...[
@@ -389,13 +426,13 @@ class _StoreConnectorsModalState extends State<StoreConnectorsModal> with Single
                 const SizedBox(width: 8),
                 Text(
                   '#${order.orderId}',
-                  style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
+                  style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
                 ),
               ],
             ),
             subtitle: Text(
               '${_formatDate(order.orderDate)} • \$${order.totalAmount.toStringAsFixed(2)} • ${order.items.length} items',
-              style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+              style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
             ),
             children: [
               Padding(
@@ -419,7 +456,7 @@ class _StoreConnectorsModalState extends State<StoreConnectorsModal> with Single
                             ),
                             Text(
                               '${item.quantity.toStringAsFixed(0)} ${item.unit}',
-                              style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+                              style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
                             ),
                             const SizedBox(width: 12),
                             Text(
@@ -476,7 +513,7 @@ class _StoreConnectorsModalState extends State<StoreConnectorsModal> with Single
             children: [
               const Text(
                 'Enter your 12-digit Costco membership number to synchronize warehouse receipts and 2-Day grocery orders.',
-                style: TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
+                style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
               ),
               const SizedBox(height: 16),
               TextField(
@@ -533,7 +570,7 @@ class _StoreConnectorsModalState extends State<StoreConnectorsModal> with Single
             children: [
               Text(
                 'Connect your Amazon account to automatically pull recent ${storeType.displayName} purchase history.',
-                style: const TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
+                style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
               ),
               const SizedBox(height: 16),
               TextField(

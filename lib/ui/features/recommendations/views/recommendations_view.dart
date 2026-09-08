@@ -38,7 +38,7 @@ class RecommendationsView extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       'Goal: ${member.goal.displayName} • Context: ${member.ethnicity} • ${recommendations.length} active suggestions',
-                      style: const TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
+                      style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
                     ),
                   ],
                 ),
@@ -201,7 +201,7 @@ class RecommendationsView extends StatelessWidget {
                         const SizedBox(width: 8),
                         Text(
                           'Impact: ${rec.affectedNutrient}',
-                          style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
+                          style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
                         ),
                       ],
                     ),
