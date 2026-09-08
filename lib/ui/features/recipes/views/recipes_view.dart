@@ -49,7 +49,7 @@ class _RecipesViewState extends State<RecipesView> {
                     const SizedBox(height: 4),
                     const Text(
                       'Frequently prepared home dishes, matched against your available pantry inventory with 1-click meal logging.',
-                      style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+                      style: TextStyle(fontSize: 13, color: Color(0xFF7D7979)),
                     ),
                   ],
                 ),
@@ -162,7 +162,7 @@ class _RecipesViewState extends State<RecipesView> {
                     const SizedBox(height: 2),
                     Text(
                       '${recipe.cuisine} • ${recipe.prepTimeMinutes + recipe.cookTimeMinutes} mins • ${recipe.defaultServings} servings',
-                      style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                      style: const TextStyle(fontSize: 11, color: Color(0xFF7D7979)),
                     ),
                   ],
                 ),
@@ -182,7 +182,7 @@ class _RecipesViewState extends State<RecipesView> {
 
           Text(
             recipe.description,
-            style: const TextStyle(fontSize: 12, color: Color(0xFFCBD5E1)),
+            style: const TextStyle(fontSize: 12, color: Color(0xFFD7D3D3)),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
@@ -196,8 +196,8 @@ class _RecipesViewState extends State<RecipesView> {
               return Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.12),
-                  borderRadius: BorderRadius.circular(6),
+                  color: AppColors.primary.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.zero,
                 ),
                 child: Text(
                   tag,
@@ -223,7 +223,7 @@ class _RecipesViewState extends State<RecipesView> {
                   ),
                   Text(
                     'P: ${nut.proteinGrams.toStringAsFixed(0)}g | C: ${nut.carbsGrams.toStringAsFixed(0)}g | F: ${nut.fatGrams.toStringAsFixed(0)}g',
-                    style: const TextStyle(fontSize: 10, color: Color(0xFF64748B)),
+                    style: const TextStyle(fontSize: 10, color: Color(0xFF7D7979)),
                   ),
                 ],
               ),
@@ -262,7 +262,7 @@ class _RecipesViewState extends State<RecipesView> {
                   const Text('Select Meal Category:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<MealType>(
-                    value: selectedMeal,
+                    initialValue: selectedMeal,
                     decoration: const InputDecoration(contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10)),
                     items: MealType.values.map((m) {
                       return DropdownMenuItem(

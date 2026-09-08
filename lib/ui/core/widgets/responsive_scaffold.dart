@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:family_food_analysis/ui/theme/app_theme.dart';
 import 'package:family_food_analysis/ui/view_models/main_view_model.dart';
 import 'package:family_food_analysis/data/models/nutrition_goals.dart';
+import 'package:family_food_analysis/ui/features/inventory/widgets/add_bill_sheet.dart';
 
 class ResponsiveScaffold extends StatelessWidget {
   final Widget body;
@@ -27,13 +28,13 @@ class ResponsiveScaffold extends StatelessWidget {
       ),
       const _NavDestination(icon: Icons.restaurant_rounded, label: 'Food Intake'),
       const _NavDestination(icon: Icons.menu_book_rounded, label: 'Recipes'),
-      const _NavDestination(icon: Icons.person_pin_rounded, label: 'Family & BMI'),
+      const _NavDestination(icon: Icons.person_pin_rounded, label: 'Profile'),
       _NavDestination(
         icon: Icons.auto_awesome_rounded,
         label: 'Suggestions',
         badgeCount: vm.currentRecommendations.isNotEmpty ? vm.currentRecommendations.length : null,
       ),
-      const _NavDestination(icon: Icons.cloud_sync_rounded, label: 'Google Sheets'),
+      const _NavDestination(icon: Icons.settings_rounded, label: 'Settings'),
     ];
 
     if (isDesktop) {
@@ -68,10 +69,10 @@ class ResponsiveScaffold extends StatelessWidget {
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.zero,
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.primary.withOpacity(0.35),
+                                color: AppColors.primary.withValues(alpha: 0.35),
                                 blurRadius: 10,
                                 offset: const Offset(0, 4),
                               )
@@ -119,7 +120,7 @@ class ResponsiveScaffold extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         decoration: BoxDecoration(
                           color: isDark ? AppColors.darkCardElevated : AppColors.lightCardElevated,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.zero,
                           border: Border.all(
                             color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
                           ),
@@ -128,7 +129,7 @@ class ResponsiveScaffold extends StatelessWidget {
                           children: [
                             CircleAvatar(
                               radius: 16,
-                              backgroundColor: AppColors.primary.withOpacity(0.2),
+                              backgroundColor: AppColors.primary.withValues(alpha: 0.2),
                               child: Text(
                                 vm.activeMember.name.isNotEmpty ? vm.activeMember.name[0] : 'U',
                                 style: const TextStyle(
@@ -155,7 +156,7 @@ class ResponsiveScaffold extends StatelessWidget {
                                     '${vm.activeMember.relationship} • ${vm.activeMember.goal.displayName.split(' ')[0]}',
                                     style: const TextStyle(
                                       fontSize: 10,
-                                      color: Color(0xFF64748B),
+                                      color: Color(0xFF7D7979),
                                     ),
                                     overflow: TextOverflow.ellipsis,
                                   ),
@@ -207,17 +208,17 @@ class ResponsiveScaffold extends StatelessWidget {
                           color: Colors.transparent,
                           child: InkWell(
                             onTap: () => vm.setTabIndex(idx),
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.zero,
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 200),
                               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                               decoration: BoxDecoration(
                                 color: isSelected
-                                    ? AppColors.primary.withOpacity(isDark ? 0.18 : 0.12)
+                                    ? AppColors.primary.withValues(alpha: isDark ? 0.18 : 0.12)
                                     : Colors.transparent,
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: BorderRadius.zero,
                                 border: isSelected
-                                    ? Border.all(color: AppColors.primary.withOpacity(0.4))
+                                    ? Border.all(color: AppColors.primary.withValues(alpha: 0.4))
                                     : null,
                               ),
                               child: Row(
@@ -234,7 +235,7 @@ class ResponsiveScaffold extends StatelessWidget {
                                       style: TextStyle(
                                         color: isSelected
                                             ? (isDark ? Colors.white : AppColors.primaryDark)
-                                            : (isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155)),
+                                            : (isDark ? const Color(0xFFD7D3D3) : const Color(0xFF444141)),
                                         fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                                         fontSize: 14,
                                       ),
@@ -245,12 +246,12 @@ class ResponsiveScaffold extends StatelessWidget {
                                       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                                       decoration: BoxDecoration(
                                         color: item.label.contains('Pantry') ? AppColors.warmAmber : AppColors.primary,
-                                        borderRadius: BorderRadius.circular(10),
+                                        borderRadius: BorderRadius.zero,
                                       ),
                                       child: Text(
                                         '${item.badgeCount}',
                                         style: const TextStyle(
-                                          color: Colors.black,
+                                          color: AppColors.bg,
                                           fontSize: 11,
                                           fontWeight: FontWeight.w800,
                                         ),
@@ -265,42 +266,15 @@ class ResponsiveScaffold extends StatelessWidget {
                     ),
                   ),
 
-                  // Bottom User Info & Sheets Indicator
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    margin: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: isDark ? AppColors.darkCardElevated.withOpacity(0.5) : AppColors.lightCardElevated,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                      ),
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: const Icon(Icons.settings_rounded, color: AppColors.accent),
+                    title: const Text('Settings', style: TextStyle(fontWeight: FontWeight.w700)),
+                    subtitle: Text(
+                      vm.sheetsConfig.syncStatus.contains('Connected') ? 'Sheets sync: live' : 'Sheets sync: ready',
+                      style: TextStyle(fontSize: 11, color: AppColors.muted(context)),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(Icons.circle, color: AppColors.primary, size: 10),
-                            const SizedBox(width: 6),
-                            const Text(
-                              'Google Sheets Sync',
-                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
-                            ),
-                            const Spacer(),
-                            Text(
-                              vm.sheetsConfig.syncStatus.contains('Connected') ? 'LIVE' : 'READY',
-                              style: const TextStyle(fontSize: 9, color: AppColors.primaryLight, fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          'Sheet: ${vm.sheetsConfig.spreadsheetId.substring(0, vm.sheetsConfig.spreadsheetId.length > 12 ? 12 : vm.sheetsConfig.spreadsheetId.length)}...',
-                          style: const TextStyle(fontSize: 10, color: Color(0xFF64748B)),
-                        ),
-                      ],
-                    ),
+                    onTap: () => vm.setTabIndex(6),
                   ),
                 ],
               ),
@@ -317,9 +291,9 @@ class ResponsiveScaffold extends StatelessWidget {
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: AppColors.primary.withOpacity(0.4)),
+                            color: AppColors.primary.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.zero,
+                            border: Border.all(color: AppColors.primary.withValues(alpha: 0.4)),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -362,25 +336,30 @@ class ResponsiveScaffold extends StatelessWidget {
       );
     }
 
-    // Mobile Viewport
+    // Mobile Viewport — Recipes(3)/Suggestions(5)/Settings(6) aren't on the
+    // bottom bar; they're reached via Dashboard quick actions / Profile
+    // links, so they get a back arrow to Dashboard instead of persistent nav.
+    const secondaryIndices = [3, 5, 6];
+    final isSecondaryScreen = secondaryIndices.contains(vm.selectedTabIndex);
+
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          children: [
-            const Icon(Icons.eco_rounded, color: AppColors.primary, size: 22),
-            const SizedBox(width: 8),
-            Text(navItems[vm.selectedTabIndex].label),
-          ],
-        ),
+        leading: isSecondaryScreen
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back_rounded),
+                onPressed: () => vm.setTabIndex(0),
+              )
+            : null,
+        title: Text(navItems[vm.selectedTabIndex].label),
         actions: [
           if (vm.currentUser != null)
             PopupMenuButton<String>(
               icon: CircleAvatar(
                 radius: 14,
-                backgroundColor: AppColors.primary.withOpacity(0.2),
+                backgroundColor: AppColors.accent.withValues(alpha: 0.15),
                 child: Text(
                   vm.activeMember.name.isNotEmpty ? vm.activeMember.name[0] : 'U',
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.primaryLight),
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.accent),
                 ),
               ),
               tooltip: 'Family Members',
@@ -394,100 +373,88 @@ class ResponsiveScaffold extends StatelessWidget {
                 }).toList();
               },
             ),
-          IconButton(
-            icon: Icon(isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded),
-            tooltip: isDark ? 'Switch to bright mode' : 'Switch to dark mode',
-            onPressed: () => vm.toggleDarkMode(),
-          ),
-          IconButton(
-            icon: const Icon(Icons.cloud_sync_rounded),
-            onPressed: () => vm.syncToGoogleSheets(),
-          ),
         ],
       ),
       body: body,
-      bottomNavigationBar: _buildMobileNavBar(context, vm, navItems),
+      bottomNavigationBar: _MobileNavBar(selectedTabIndex: vm.selectedTabIndex, onSelect: vm.setTabIndex),
     );
   }
+}
 
-  // Mobile keeps only the top 4 destinations on the bar itself (a 7-item
-  // bottom nav is cramped on phones); everything else lives behind "More".
-  static const List<int> _primaryIndices = [0, 1, 2, 3];
-  static const List<int> _moreIndices = [4, 5, 6];
+/// The design's 5-slot bar: Home / Pantry / a raised center camera FAB /
+/// Intake / Profile. The FAB opens the receipt scanner directly rather than
+/// selecting a tab.
+class _MobileNavBar extends StatelessWidget {
+  final int selectedTabIndex;
+  final ValueChanged<int> onSelect;
 
-  Widget _buildMobileNavBar(BuildContext context, MainViewModel vm, List<_NavDestination> navItems) {
-    final isOnMorePage = _moreIndices.contains(vm.selectedTabIndex);
-    final moreHasBadge = _moreIndices.any((i) => navItems[i].badgeCount != null);
-    final selectedIndex = isOnMorePage ? 4 : _primaryIndices.indexOf(vm.selectedTabIndex).clamp(0, 3);
+  const _MobileNavBar({required this.selectedTabIndex, required this.onSelect});
 
-    return NavigationBar(
-      selectedIndex: selectedIndex,
-      onDestinationSelected: (idx) {
-        if (idx == 4) {
-          _showMoreSheet(context, vm, navItems);
-        } else {
-          vm.setTabIndex(_primaryIndices[idx]);
-        }
-      },
-      destinations: [
-        ..._primaryIndices.map((i) {
-          final item = navItems[i];
-          return NavigationDestination(
-            icon: item.badgeCount != null
-                ? Badge(label: Text('${item.badgeCount}'), child: Icon(item.icon))
-                : Icon(item.icon),
-            label: item.label.split(' ')[0],
-          );
-        }),
-        NavigationDestination(
-          icon: moreHasBadge
-              ? const Badge(child: Icon(Icons.more_horiz_rounded))
-              : const Icon(Icons.more_horiz_rounded),
-          label: 'More',
-        ),
-      ],
-    );
-  }
-
-  void _showMoreSheet(BuildContext context, MainViewModel vm, List<_NavDestination> navItems) {
+  @override
+  Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: _moreIndices.map((i) {
-              final item = navItems[i];
-              return ListTile(
-                leading: Icon(item.icon, color: AppColors.primary),
-                title: Text(item.label, style: const TextStyle(fontWeight: FontWeight.w600)),
-                trailing: item.badgeCount != null
-                    ? Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Text(
-                          '${item.badgeCount}',
-                          style: const TextStyle(color: Colors.black, fontSize: 11, fontWeight: FontWeight.w800),
-                        ),
-                      )
-                    : null,
-                onTap: () {
-                  vm.setTabIndex(i);
-                  Navigator.of(ctx).pop();
-                },
-              );
-            }).toList(),
+    final barColor = isDark ? AppColors.darkBg : AppColors.bg;
+    final borderColor = isDark ? AppColors.darkBorder : AppColors.divider;
+
+    return SizedBox(
+      height: 74,
+      child: Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.topCenter,
+        children: [
+          Positioned.fill(
+            top: 8,
+            child: Container(
+              decoration: BoxDecoration(color: barColor, border: Border(top: BorderSide(color: borderColor, width: 2))),
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                children: [
+                  _navItem(context, icon: Icons.home_rounded, label: 'Home', index: 0),
+                  _navItem(context, icon: Icons.kitchen_rounded, label: 'Pantry', index: 1),
+                  const Expanded(child: SizedBox()), // space for the FAB
+                  _navItem(context, icon: Icons.restaurant_rounded, label: 'Intake', index: 2),
+                  _navItem(context, icon: Icons.person_rounded, label: 'Profile', index: 4),
+                ],
+              ),
+            ),
           ),
-        );
-      },
+          Positioned(
+            top: -18,
+            child: GestureDetector(
+              onTap: () => AddBillSheet.show(context),
+              child: Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: AppColors.accent,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: barColor, width: 4),
+                  boxShadow: AppColors.shadowLg(isDark),
+                ),
+                child: Icon(Icons.camera_alt_rounded, color: AppColors.bg, size: 22),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _navItem(BuildContext context, {required IconData icon, required String label, required int index}) {
+    final isSelected = selectedTabIndex == index;
+    final color = isSelected ? AppColors.accent : AppColors.muted(context);
+    return Expanded(
+      child: InkWell(
+        onTap: () => onSelect(index),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 20, color: color),
+            const SizedBox(height: 3),
+            Text(label, style: TextStyle(fontSize: 10, color: color)),
+          ],
+        ),
+      ),
     );
   }
 }

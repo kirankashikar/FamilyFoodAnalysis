@@ -68,9 +68,7 @@ class _SnapMealSheetState extends State<SnapMealSheet> {
       height: isDesktop ? null : MediaQuery.of(context).size.height * 0.9,
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-        borderRadius: isDesktop
-            ? BorderRadius.circular(24)
-            : const BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.zero,
         border: isDesktop
             ? Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder)
             : null,
@@ -85,7 +83,7 @@ class _SnapMealSheetState extends State<SnapMealSheet> {
               height: 4,
               decoration: BoxDecoration(
                 color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                borderRadius: BorderRadius.circular(2),
+                borderRadius: BorderRadius.zero,
               ),
             ),
           Padding(
@@ -184,9 +182,9 @@ class _SnapMealSheetState extends State<SnapMealSheet> {
       padding: const EdgeInsets.only(bottom: 10),
       child: Material(
         color: isDark ? AppColors.darkCardElevated : AppColors.lightCardElevated,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.zero,
         child: InkWell(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.zero,
           onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.all(14),
@@ -196,8 +194,8 @@ class _SnapMealSheetState extends State<SnapMealSheet> {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(10),
+                    color: AppColors.primary.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.zero,
                   ),
                   child: Icon(icon, color: AppColors.primary, size: 20),
                 ),
@@ -263,8 +261,8 @@ class _SnapMealSheetState extends State<SnapMealSheet> {
         Container(
           height: 180,
           decoration: BoxDecoration(
-            border: Border.all(color: AppColors.muted(context).withOpacity(0.3)),
-            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: AppColors.muted(context).withValues(alpha: 0.3)),
+            borderRadius: BorderRadius.zero,
           ),
           child: searchResults.isEmpty
               ? Center(
@@ -281,7 +279,7 @@ class _SnapMealSheetState extends State<SnapMealSheet> {
                     return ListTile(
                       dense: true,
                       selected: isSelected,
-                      selectedTileColor: AppColors.primary.withOpacity(0.15),
+                      selectedTileColor: AppColors.primary.withValues(alpha: 0.15),
                       title: Text(item.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
                       subtitle: Text('${item.cuisineCategory} • ${item.nutrientsPerServing.calories.toInt()} kcal'),
                       onTap: () => setState(() => _selectedFood = item),
@@ -294,9 +292,9 @@ class _SnapMealSheetState extends State<SnapMealSheet> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.08),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+              color: AppColors.primary.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.zero,
+              border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

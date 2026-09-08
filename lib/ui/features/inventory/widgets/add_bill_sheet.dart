@@ -81,9 +81,7 @@ class _AddBillSheetState extends State<AddBillSheet> {
       height: isDesktop ? null : MediaQuery.of(context).size.height * 0.9,
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-        borderRadius: isDesktop
-            ? BorderRadius.circular(24)
-            : const BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.zero,
         border: isDesktop
             ? Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder)
             : null,
@@ -98,7 +96,7 @@ class _AddBillSheetState extends State<AddBillSheet> {
               height: 4,
               decoration: BoxDecoration(
                 color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                borderRadius: BorderRadius.circular(2),
+                borderRadius: BorderRadius.zero,
               ),
             ),
           Padding(
@@ -247,9 +245,9 @@ class _AddBillSheetState extends State<AddBillSheet> {
       padding: const EdgeInsets.only(bottom: 10),
       child: Material(
         color: isDark ? AppColors.darkCardElevated : AppColors.lightCardElevated,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.zero,
         child: InkWell(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.zero,
           onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.all(14),
@@ -259,8 +257,8 @@ class _AddBillSheetState extends State<AddBillSheet> {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: iconColor.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(10),
+                    color: iconColor.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.zero,
                   ),
                   child: Icon(icon, color: iconColor, size: 20),
                 ),
@@ -326,7 +324,7 @@ class _AddBillSheetState extends State<AddBillSheet> {
           constraints: const BoxConstraints(maxHeight: 260),
           decoration: BoxDecoration(
             color: isDark ? AppColors.darkCardElevated : AppColors.lightCardElevated,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.zero,
           ),
           child: ListView.builder(
             shrinkWrap: true,

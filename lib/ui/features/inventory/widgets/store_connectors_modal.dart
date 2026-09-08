@@ -54,16 +54,14 @@ class _StoreConnectorsModalState extends State<StoreConnectorsModal> with Single
       height: isDesktop ? 680 : MediaQuery.of(context).size.height * 0.92,
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-        borderRadius: isDesktop
-            ? BorderRadius.circular(24)
-            : const BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.zero,
         border: isDesktop
             ? Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder)
             : null,
         boxShadow: isDesktop
             ? [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.35),
+                  color: Colors.black.withValues(alpha: 0.35),
                   blurRadius: 30,
                   offset: const Offset(0, 10),
                 )
@@ -79,7 +77,7 @@ class _StoreConnectorsModalState extends State<StoreConnectorsModal> with Single
               height: 4,
               decoration: BoxDecoration(
                 color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                borderRadius: BorderRadius.circular(2),
+                borderRadius: BorderRadius.zero,
               ),
             ),
           // Modal Header
@@ -94,7 +92,7 @@ class _StoreConnectorsModalState extends State<StoreConnectorsModal> with Single
                     gradient: const LinearGradient(
                       colors: [Color(0xFF0060A9), Color(0xFF00A8E1)],
                     ),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.zero,
                   ),
                   child: const Icon(Icons.hub_rounded, color: Colors.white, size: 24),
                 ),
@@ -242,9 +240,9 @@ class _StoreConnectorsModalState extends State<StoreConnectorsModal> with Single
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCardElevated : AppColors.lightCardElevated,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.zero,
         border: Border.all(
-          color: isConnected ? brandColor.withOpacity(0.5) : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+          color: isConnected ? brandColor.withValues(alpha: 0.5) : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
           width: isConnected ? 1.5 : 1,
         ),
       ),
@@ -257,9 +255,9 @@ class _StoreConnectorsModalState extends State<StoreConnectorsModal> with Single
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: brandColor.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: brandColor.withOpacity(0.3)),
+                  color: brandColor.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.zero,
+                  border: Border.all(color: brandColor.withValues(alpha: 0.3)),
                 ),
                 child: Center(
                   child: Text(iconEmoji, style: const TextStyle(fontSize: 22)),
@@ -281,9 +279,9 @@ class _StoreConnectorsModalState extends State<StoreConnectorsModal> with Single
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
                             color: isConnected
-                                ? AppColors.primary.withOpacity(0.2)
+                                ? AppColors.primary.withValues(alpha: 0.2)
                                 : (isDark ? Colors.white10 : Colors.black12),
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.zero,
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -310,7 +308,7 @@ class _StoreConnectorsModalState extends State<StoreConnectorsModal> with Single
                     const SizedBox(height: 4),
                     Text(
                       description,
-                      style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                      style: const TextStyle(fontSize: 12, color: Color(0xFF7D7979)),
                     ),
                   ],
                 ),
@@ -323,11 +321,11 @@ class _StoreConnectorsModalState extends State<StoreConnectorsModal> with Single
           Row(
             children: [
               if (isConnected && config.lastSyncTime != null) ...[
-                const Icon(Icons.sync_rounded, size: 14, color: Color(0xFF64748B)),
+                const Icon(Icons.sync_rounded, size: 14, color: Color(0xFF7D7979)),
                 const SizedBox(width: 6),
                 Text(
                   'Last synced: ${_formatDate(config.lastSyncTime!)}',
-                  style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                  style: const TextStyle(fontSize: 11, color: Color(0xFF7D7979)),
                 ),
                 const Spacer(),
               ] else ...[
@@ -408,7 +406,7 @@ class _StoreConnectorsModalState extends State<StoreConnectorsModal> with Single
         return Container(
           decoration: BoxDecoration(
             color: isDark ? AppColors.darkCardElevated : AppColors.lightCardElevated,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.zero,
             border: Border.all(
               color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
             ),
@@ -425,13 +423,13 @@ class _StoreConnectorsModalState extends State<StoreConnectorsModal> with Single
                 const SizedBox(width: 8),
                 Text(
                   '#${order.orderId}',
-                  style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                  style: const TextStyle(fontSize: 11, color: Color(0xFF7D7979)),
                 ),
               ],
             ),
             subtitle: Text(
               '${_formatDate(order.orderDate)} • \$${order.totalAmount.toStringAsFixed(2)} • ${order.items.length} items',
-              style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+              style: const TextStyle(fontSize: 12, color: Color(0xFF7D7979)),
             ),
             children: [
               Padding(
@@ -455,7 +453,7 @@ class _StoreConnectorsModalState extends State<StoreConnectorsModal> with Single
                             ),
                             Text(
                               '${item.quantity.toStringAsFixed(0)} ${item.unit}',
-                              style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                              style: const TextStyle(fontSize: 12, color: Color(0xFF7D7979)),
                             ),
                             const SizedBox(width: 12),
                             Text(
@@ -512,7 +510,7 @@ class _StoreConnectorsModalState extends State<StoreConnectorsModal> with Single
             children: [
               const Text(
                 'Enter your 12-digit Costco membership number to synchronize warehouse receipts and 2-Day grocery orders.',
-                style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+                style: TextStyle(fontSize: 13, color: Color(0xFF7D7979)),
               ),
               const SizedBox(height: 16),
               TextField(
@@ -569,7 +567,7 @@ class _StoreConnectorsModalState extends State<StoreConnectorsModal> with Single
             children: [
               Text(
                 'Connect your Amazon account to automatically pull recent ${storeType.displayName} purchase history.',
-                style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+                style: const TextStyle(fontSize: 13, color: Color(0xFF7D7979)),
               ),
               const SizedBox(height: 16),
               TextField(

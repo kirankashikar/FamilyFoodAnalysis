@@ -78,7 +78,7 @@ class _ProfileAndGoalsViewState extends State<ProfileAndGoalsView> {
                     const SizedBox(height: 4),
                     const Text(
                       'Personalize BMI metrics, ethnic diet defaults, food goals, and nutritional targets for every family member.',
-                      style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+                      style: TextStyle(fontSize: 13, color: Color(0xFF7D7979)),
                     ),
                   ],
                 ),
@@ -165,7 +165,7 @@ class _ProfileAndGoalsViewState extends State<ProfileAndGoalsView> {
                 const SizedBox(height: 6),
                 const Text(
                   'Configuring ethnicity defaults food vocabulary (Dosa, Hummus, Rotis, Tofu), staple grains, and spices for intelligent menu suggestions.',
-                  style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                  style: TextStyle(fontSize: 12, color: Color(0xFF7D7979)),
                 ),
                 const SizedBox(height: 16),
                 Wrap(
@@ -175,12 +175,12 @@ class _ProfileAndGoalsViewState extends State<ProfileAndGoalsView> {
                     final isSelected = _selectedEthnicity.toLowerCase().contains(preset.name.toLowerCase());
                     return InkWell(
                       onTap: () => setState(() => _selectedEthnicity = preset.name),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.zero,
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                         decoration: BoxDecoration(
-                          color: isSelected ? AppColors.primary.withOpacity(0.18) : (isDark ? AppColors.darkCardElevated : AppColors.lightCardElevated),
-                          borderRadius: BorderRadius.circular(12),
+                          color: isSelected ? AppColors.primary.withValues(alpha: 0.18) : (isDark ? AppColors.darkCardElevated : AppColors.lightCardElevated),
+                          borderRadius: BorderRadius.zero,
                           border: Border.all(
                             color: isSelected ? AppColors.primary : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
                             width: isSelected ? 2 : 1,
@@ -195,7 +195,7 @@ class _ProfileAndGoalsViewState extends State<ProfileAndGoalsView> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(preset.name, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: isSelected ? AppColors.primaryLight : null)),
-                                Text('${preset.stapleCarbs.take(2).join(', ')}...', style: const TextStyle(fontSize: 10, color: Color(0xFF64748B))),
+                                Text('${preset.stapleCarbs.take(2).join(', ')}...', style: const TextStyle(fontSize: 10, color: Color(0xFF7D7979))),
                               ],
                             ),
                           ],
@@ -256,7 +256,7 @@ class _ProfileAndGoalsViewState extends State<ProfileAndGoalsView> {
                     return FilterChip(
                       label: Text(allergy),
                       selected: isSel,
-                      selectedColor: AppColors.roseAlert.withOpacity(0.2),
+                      selectedColor: AppColors.roseAlert.withValues(alpha: 0.2),
                       checkmarkColor: AppColors.roseAlert,
                       onSelected: (sel) {
                         setState(() {
@@ -289,28 +289,32 @@ class _ProfileAndGoalsViewState extends State<ProfileAndGoalsView> {
                   ],
                 ),
                 const SizedBox(height: 14),
-                ...HealthGoal.values.map((goal) {
-                  final isSelected = _selectedGoal == goal;
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    decoration: BoxDecoration(
-                      color: isSelected ? AppColors.primary.withOpacity(0.15) : (isDark ? AppColors.darkCardElevated : AppColors.lightCardElevated),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: isSelected ? AppColors.primary : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
-                      ),
-                    ),
-                    child: RadioListTile<HealthGoal>(
-                      value: goal,
-                      groupValue: _selectedGoal,
-                      onChanged: (val) {
-                        if (val != null) setState(() => _selectedGoal = val);
-                      },
-                      title: Text(goal.displayName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                      subtitle: Text(goal.description, style: const TextStyle(fontSize: 11, color: Color(0xFF64748B))),
-                    ),
-                  );
-                }),
+                RadioGroup<HealthGoal>(
+                  groupValue: _selectedGoal,
+                  onChanged: (val) {
+                    if (val != null) setState(() => _selectedGoal = val);
+                  },
+                  child: Column(
+                    children: HealthGoal.values.map((goal) {
+                      final isSelected = _selectedGoal == goal;
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        decoration: BoxDecoration(
+                          color: isSelected ? AppColors.primary.withValues(alpha: 0.15) : (isDark ? AppColors.darkCardElevated : AppColors.lightCardElevated),
+                          borderRadius: BorderRadius.zero,
+                          border: Border.all(
+                            color: isSelected ? AppColors.primary : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                          ),
+                        ),
+                        child: RadioListTile<HealthGoal>(
+                          value: goal,
+                          title: Text(goal.displayName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                          subtitle: Text(goal.description, style: const TextStyle(fontSize: 11, color: Color(0xFF7D7979))),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
               ],
             ),
           ),
@@ -332,7 +336,30 @@ class _ProfileAndGoalsViewState extends State<ProfileAndGoalsView> {
               ),
             ),
           ),
+
+          const SizedBox(height: 24),
+          Divider(height: 1, color: AppColors.dividerColor(context)),
+          _linkRow(context, icon: Icons.auto_awesome_rounded, label: 'See recommendations', onTap: () => vm.setTabIndex(5)),
+          Divider(height: 1, color: AppColors.dividerColor(context)),
+          _linkRow(context, icon: Icons.settings_rounded, label: 'Settings', onTap: () => vm.setTabIndex(6)),
         ],
+      ),
+    );
+  }
+
+  Widget _linkRow(BuildContext context, {required IconData icon, required String label, required VoidCallback onTap}) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        child: Row(
+          children: [
+            Icon(icon, color: AppColors.accent, size: 18),
+            const SizedBox(width: 10),
+            Expanded(child: Text(label, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14))),
+            const Icon(Icons.chevron_right_rounded, size: 18),
+          ],
+        ),
       ),
     );
   }
@@ -387,7 +414,8 @@ class _ProfileAndGoalsViewState extends State<ProfileAndGoalsView> {
             children: [
               Expanded(
                 child: DropdownButtonFormField<String>(
-                  value: _selectedGender,
+                  key: ValueKey('gender-$_loadedMemberId'),
+                  initialValue: _selectedGender,
                   decoration: const InputDecoration(labelText: 'Gender'),
                   items: ['Male', 'Female', 'Other'].map((g) => DropdownMenuItem(value: g, child: Text(g))).toList(),
                   onChanged: (val) {
@@ -398,7 +426,8 @@ class _ProfileAndGoalsViewState extends State<ProfileAndGoalsView> {
               const SizedBox(width: 12),
               Expanded(
                 child: DropdownButtonFormField<String>(
-                  value: _selectedActivity,
+                  key: ValueKey('activity-$_loadedMemberId'),
+                  initialValue: _selectedActivity,
                   decoration: const InputDecoration(labelText: 'Activity Level'),
                   items: ['Sedentary', 'Light', 'Moderate', 'Active', 'Very Active'].map((a) => DropdownMenuItem(value: a, child: Text(a))).toList(),
                   onChanged: (val) {
@@ -424,9 +453,9 @@ class _ProfileAndGoalsViewState extends State<ProfileAndGoalsView> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.primary.withOpacity(0.4)),
+                color: AppColors.primary.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.zero,
+                border: Border.all(color: AppColors.primary.withValues(alpha: 0.4)),
               ),
               child: Column(
                 children: [
@@ -436,7 +465,7 @@ class _ProfileAndGoalsViewState extends State<ProfileAndGoalsView> {
                   ),
                   Text(
                     assessment.category.toUpperCase(),
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 1),
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.accent700, letterSpacing: 1),
                   ),
                 ],
               ),
@@ -458,7 +487,7 @@ class _ProfileAndGoalsViewState extends State<ProfileAndGoalsView> {
   Widget _buildScoreRow(String label, String val) {
     return Row(
       children: [
-        Text(label, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B))),
+        Text(label, style: const TextStyle(fontSize: 12, color: Color(0xFF7D7979))),
         const Spacer(),
         Text(val, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
       ],
@@ -503,7 +532,7 @@ class _ProfileAndGoalsViewState extends State<ProfileAndGoalsView> {
               TextField(controller: nameCtrl, decoration: const InputDecoration(labelText: 'Name (e.g., Ananya, Aarav)')),
               const SizedBox(height: 10),
               DropdownButtonFormField<String>(
-                value: rel,
+                initialValue: rel,
                 decoration: const InputDecoration(labelText: 'Relationship'),
                 items: ['Spouse', 'Child', 'Parent', 'Sibling', 'Roommate'].map((r) => DropdownMenuItem(value: r, child: Text(r))).toList(),
                 onChanged: (val) => rel = val ?? rel,
@@ -515,7 +544,7 @@ class _ProfileAndGoalsViewState extends State<ProfileAndGoalsView> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: DropdownButtonFormField<String>(
-                      value: gender,
+                      initialValue: gender,
                       decoration: const InputDecoration(labelText: 'Gender'),
                       items: ['Male', 'Female', 'Other'].map((g) => DropdownMenuItem(value: g, child: Text(g))).toList(),
                       onChanged: (val) => gender = val ?? gender,

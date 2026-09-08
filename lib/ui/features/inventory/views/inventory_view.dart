@@ -83,12 +83,12 @@ class _InventoryViewState extends State<InventoryView> {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppColors.primary.withOpacity(0.15),
-                  AppColors.secondary.withOpacity(0.1),
+                  AppColors.primary.withValues(alpha: 0.15),
+                  AppColors.secondary.withValues(alpha: 0.1),
                 ],
               ),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+              borderRadius: BorderRadius.zero,
+              border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
             ),
             child: Row(
               children: [
@@ -104,7 +104,7 @@ class _InventoryViewState extends State<InventoryView> {
                       ),
                       Text(
                         'Pantry inventory changes automatically sync to your connected Google Sheet tab "${vm.sheetsConfig.inventorySheetName}".',
-                        style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                        style: const TextStyle(fontSize: 11, color: Color(0xFF7D7979)),
                       ),
                     ],
                   ),
@@ -218,7 +218,7 @@ class _InventoryViewState extends State<InventoryView> {
             height: 44,
             decoration: BoxDecoration(
               color: isDark ? AppColors.darkCardElevated : AppColors.lightCardElevated,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.zero,
             ),
             child: Center(
               child: Text(
@@ -246,12 +246,12 @@ class _InventoryViewState extends State<InventoryView> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: isDark ? Colors.white10 : Colors.black.withOpacity(0.05),
-                          borderRadius: BorderRadius.circular(6),
+                          color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.05),
+                          borderRadius: BorderRadius.zero,
                         ),
                         child: Text(
                           item.storeName!,
-                          style: const TextStyle(fontSize: 10, color: Color(0xFF64748B)),
+                          style: const TextStyle(fontSize: 10, color: Color(0xFF7D7979)),
                         ),
                       ),
                     ],
@@ -262,7 +262,7 @@ class _InventoryViewState extends State<InventoryView> {
                   children: [
                     Text(
                       item.category.displayName,
-                      style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                      style: const TextStyle(fontSize: 11, color: Color(0xFF7D7979)),
                     ),
                     const SizedBox(width: 10),
                     if (item.expiryDate != null)
@@ -270,9 +270,9 @@ class _InventoryViewState extends State<InventoryView> {
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                         decoration: BoxDecoration(
                           color: item.isExpired
-                              ? AppColors.roseAlert.withOpacity(0.15)
-                              : (item.isExpiringSoon ? AppColors.warmAmber.withOpacity(0.15) : AppColors.primary.withOpacity(0.1)),
-                          borderRadius: BorderRadius.circular(4),
+                              ? AppColors.roseAlert.withValues(alpha: 0.15)
+                              : (item.isExpiringSoon ? AppColors.warmAmber.withValues(alpha: 0.15) : AppColors.primary.withValues(alpha: 0.1)),
+                          borderRadius: BorderRadius.zero,
                         ),
                         child: Text(
                           item.isExpired
@@ -365,7 +365,7 @@ class _InventoryViewState extends State<InventoryView> {
                     ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<GroceryCategory>(
-                      value: selectedCategory,
+                      initialValue: selectedCategory,
                       decoration: const InputDecoration(labelText: 'Category'),
                       items: GroceryCategory.values.map((cat) {
                         return DropdownMenuItem(

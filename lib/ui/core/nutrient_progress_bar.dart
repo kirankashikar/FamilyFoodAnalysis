@@ -44,7 +44,7 @@ class NutrientProgressBar extends StatelessWidget {
                 '($subtitle)',
                 style: const TextStyle(
                   fontSize: 11,
-                  color: Color(0xFF64748B),
+                  color: Color(0xFF7D7979),
                 ),
               ),
             ],
@@ -61,17 +61,17 @@ class NutrientProgressBar extends StatelessWidget {
               ' / ${target.toStringAsFixed(0)} $unit',
               style: const TextStyle(
                 fontSize: 11,
-                color: Color(0xFF64748B),
+                color: Color(0xFF7D7979),
               ),
             ),
           ],
         ),
         const SizedBox(height: 6),
         ClipRRect(
-          borderRadius: BorderRadius.circular(6),
+          borderRadius: BorderRadius.zero,
           child: LinearProgressIndicator(
             value: (ratio > 1.0) ? 1.0 : ratio,
-            backgroundColor: color.withOpacity(0.12),
+            backgroundColor: color.withValues(alpha: 0.12),
             valueColor: AlwaysStoppedAnimation<Color>(
               isLimit && isExceeded ? AppColors.roseAlert : color,
             ),

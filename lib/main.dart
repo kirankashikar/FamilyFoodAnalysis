@@ -21,7 +21,7 @@ import 'ui/features/intake/views/intake_view.dart';
 import 'ui/features/recipes/views/recipes_view.dart';
 import 'ui/features/profile/views/profile_and_goals_view.dart';
 import 'ui/features/recommendations/views/recommendations_view.dart';
-import 'ui/features/sheets_sync/views/sheets_sync_view.dart';
+import 'ui/features/settings/views/settings_view.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -142,7 +142,7 @@ class _AppHomeState extends State<AppHome> {
       const RecipesView(),
       const ProfileAndGoalsView(),
       const RecommendationsView(),
-      const SheetsSyncView(),
+      const SettingsView(),
     ];
 
     return ResponsiveScaffold(

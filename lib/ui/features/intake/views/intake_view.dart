@@ -37,7 +37,7 @@ class IntakeView extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       'Track meals, analyze nutrient absorption, and optimize your ${vm.activeMember.goal.displayName.split(' ')[0]} goal.',
-                      style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+                      style: const TextStyle(fontSize: 13, color: Color(0xFF7D7979)),
                     ),
                   ],
                 ),
@@ -46,7 +46,7 @@ class IntakeView extends StatelessWidget {
               Container(
                 decoration: BoxDecoration(
                   color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.zero,
                   border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
                 ),
                 child: Row(
@@ -148,7 +148,7 @@ class IntakeView extends StatelessWidget {
                             ),
                             Text(
                               '${mealCalories.toStringAsFixed(0)} kcal total',
-                              style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                              style: const TextStyle(fontSize: 11, color: Color(0xFF7D7979)),
                             ),
                           ],
                         ),
@@ -169,13 +169,13 @@ class IntakeView extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: isDark ? AppColors.darkCardElevated.withOpacity(0.4) : AppColors.lightCardElevated,
-                          borderRadius: BorderRadius.circular(10),
+                          color: isDark ? AppColors.darkCardElevated.withValues(alpha: 0.4) : AppColors.lightCardElevated,
+                          borderRadius: BorderRadius.zero,
                         ),
                         child: Center(
                           child: Text(
                             'No items logged for ${mealType.displayName}. Tap "Log Dish" to search foods (Dosa, Hummus, Salads, etc.).',
-                            style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                            style: const TextStyle(fontSize: 12, color: Color(0xFF7D7979)),
                           ),
                         ),
                       )
@@ -193,7 +193,7 @@ class IntakeView extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                             decoration: BoxDecoration(
                               color: isDark ? AppColors.darkCardElevated : AppColors.lightCardElevated,
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: BorderRadius.zero,
                             ),
                             child: Row(
                               children: [
@@ -208,7 +208,7 @@ class IntakeView extends StatelessWidget {
                                       const SizedBox(height: 2),
                                       Text(
                                         '${entry.servings.toStringAsFixed(1)} serving (${entry.servingUnit}) • ${nut.proteinGrams.toStringAsFixed(0)}g Protein, ${nut.carbsGrams.toStringAsFixed(0)}g Carbs, ${nut.fatGrams.toStringAsFixed(0)}g Fat, ${nut.fiberGrams.toStringAsFixed(1)}g Fiber',
-                                        style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                                        style: const TextStyle(fontSize: 11, color: Color(0xFF7D7979)),
                                       ),
                                     ],
                                   ),
@@ -242,7 +242,7 @@ class IntakeView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(label, style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w600)),
+          Text(label, style: const TextStyle(fontSize: 11, color: Color(0xFF7D7979), fontWeight: FontWeight.w600)),
           const SizedBox(height: 4),
           Text(value, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: color)),
         ],
@@ -251,7 +251,7 @@ class IntakeView extends StatelessWidget {
   }
 
   Widget _buildDivider() {
-    return Container(width: 1, height: 28, color: const Color(0xFF334155));
+    return Container(width: 1, height: 28, color: const Color(0xFF444141));
   }
 
   void _showLogFoodDialog(BuildContext context, MainViewModel vm, MealType mealType) {
@@ -339,8 +339,8 @@ class _LogFoodModalState extends State<_LogFoodModal> {
               Container(
                 height: 180,
                 decoration: BoxDecoration(
-                  border: Border.all(color: const Color(0xFF334155)),
-                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: const Color(0xFF444141)),
+                  borderRadius: BorderRadius.zero,
                 ),
                 child: ListView.builder(
                   itemCount: foodItems.length,
@@ -351,12 +351,12 @@ class _LogFoodModalState extends State<_LogFoodModal> {
                     return ListTile(
                       dense: true,
                       selected: isSelected,
-                      selectedTileColor: AppColors.primary.withOpacity(0.15),
+                      selectedTileColor: AppColors.primary.withValues(alpha: 0.15),
                       title: Text(item.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
                       subtitle: Text('${item.cuisineCategory} • ${item.defaultServingUnit} • ${item.nutrientsPerServing.calories.toInt()} kcal'),
                       trailing: Text(
                         'P: ${item.nutrientsPerServing.proteinGrams.toInt()}g | C: ${item.nutrientsPerServing.carbsGrams.toInt()}g',
-                        style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                        style: const TextStyle(fontSize: 11, color: Color(0xFF7D7979)),
                       ),
                       onTap: () => setState(() => _selectedFood = item),
                     );
@@ -369,9 +369,9 @@ class _LogFoodModalState extends State<_LogFoodModal> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.08),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+                    color: AppColors.primary.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.zero,
+                    border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -400,13 +400,13 @@ class _LogFoodModalState extends State<_LogFoodModal> {
                             onPressed: () => setState(() => _servings = _servings + 0.5),
                           ),
                           const SizedBox(width: 8),
-                          Text('(${_selectedFood!.defaultServingUnit})', style: const TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+                          Text('(${_selectedFood!.defaultServingUnit})', style: const TextStyle(fontSize: 11, color: Color(0xFF7D7979))),
                         ],
                       ),
                       const SizedBox(height: 4),
                       Text(
                         'Nutrients: Protein ${(_selectedFood!.nutrientsPerServing.proteinGrams * _servings).toStringAsFixed(1)}g • Carbs ${(_selectedFood!.nutrientsPerServing.carbsGrams * _servings).toStringAsFixed(1)}g • Fat ${(_selectedFood!.nutrientsPerServing.fatGrams * _servings).toStringAsFixed(1)}g • Fiber ${(_selectedFood!.nutrientsPerServing.fiberGrams * _servings).toStringAsFixed(1)}g • Sodium ${(_selectedFood!.nutrientsPerServing.sodiumMg * _servings).toStringAsFixed(0)}mg',
-                        style: const TextStyle(fontSize: 11, color: Color(0xFFCBD5E1)),
+                        style: const TextStyle(fontSize: 11, color: Color(0xFFD7D3D3)),
                       ),
                     ],
                   ),

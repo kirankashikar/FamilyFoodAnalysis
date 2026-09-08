@@ -70,7 +70,7 @@ class MacroDonutChart extends StatelessWidget {
                     'of ${calTarget.toStringAsFixed(0)} kcal',
                     style: const TextStyle(
                       fontSize: 12,
-                      color: Color(0xFF64748B),
+                      color: Color(0xFF7D7979),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -78,8 +78,8 @@ class MacroDonutChart extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(20),
+                      color: AppColors.primary.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.zero,
                     ),
                     child: Text(
                       '${(calRatio * 100).toStringAsFixed(0)}%',
@@ -180,17 +180,17 @@ class MacroDonutChart extends StatelessWidget {
               ' / ${targetGrams.toStringAsFixed(0)}g',
               style: const TextStyle(
                 fontSize: 11,
-                color: Color(0xFF64748B),
+                color: Color(0xFF7D7979),
               ),
             ),
           ],
         ),
         const SizedBox(height: 4),
         ClipRRect(
-          borderRadius: BorderRadius.circular(4),
+          borderRadius: BorderRadius.zero,
           child: LinearProgressIndicator(
             value: ratio,
-            backgroundColor: color.withOpacity(0.15),
+            backgroundColor: color.withValues(alpha: 0.15),
             valueColor: AlwaysStoppedAnimation<Color>(color),
             minHeight: 5,
           ),
@@ -221,7 +221,7 @@ class _DonutChartPainter extends CustomPainter {
 
     // Background track
     final bgPaint = Paint()
-      ..color = const Color(0xFF334155).withOpacity(0.4)
+      ..color = const Color(0xFF444141).withValues(alpha: 0.4)
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth;
     canvas.drawCircle(center, outerRadius, bgPaint);

@@ -12,6 +12,8 @@ import 'package:family_food_analysis/data/models/grocery_item.dart';
 import 'package:family_food_analysis/domain/services/bmi_calculator.dart';
 import 'package:family_food_analysis/domain/services/recommendation_engine.dart';
 import 'package:family_food_analysis/domain/services/nutrition_analytics.dart';
+import 'package:family_food_analysis/ui/features/inventory/widgets/add_bill_sheet.dart';
+import 'package:family_food_analysis/ui/features/intake/widgets/snap_meal_sheet.dart';
 
 class DashboardView extends StatelessWidget {
   const DashboardView({super.key});
@@ -25,6 +27,9 @@ class DashboardView extends StatelessWidget {
     final recommendations = vm.currentRecommendations;
     final isDesktop = MediaQuery.of(context).size.width >= 900;
 
+    final greeting = _greetingForNow();
+    final expiring = vm.expiringSoonItems;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -32,33 +37,40 @@ class DashboardView extends StatelessWidget {
         children: [
           // Greeting & Active Member Header
           Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Hello, ${vm.activeMember.name} 👋',
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: -0.5,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      greeting,
+                      style: TextStyle(
+                        fontSize: 11,
+                        letterSpacing: 1.2,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.muted(context),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${DateFormat('EEEE, MMMM d').format(vm.selectedDate)} • Goal: ${vm.activeMember.goal.displayName}',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Color(0xFF64748B),
+                    Text(
+                      '${vm.activeMember.name} • ${DateFormat('EEE, MMM d').format(vm.selectedDate)}',
+                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, letterSpacing: -0.5),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-              const Spacer(),
-              ElevatedButton.icon(
-                onPressed: () => vm.setTabIndex(2), // Navigate to Food Intake
-                icon: const Icon(Icons.add_rounded, size: 18),
-                label: const Text('Log Intake'),
+              InkWell(
+                onTap: () => vm.setTabIndex(4),
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  color: AppColors.accent,
+                  alignment: Alignment.center,
+                  child: Text(
+                    vm.activeMember.name.isNotEmpty ? vm.activeMember.name[0].toUpperCase() : 'U',
+                    style: const TextStyle(color: AppColors.bg, fontWeight: FontWeight.w800, fontSize: 18),
+                  ),
+                ),
               ),
             ],
           ),
@@ -87,6 +99,64 @@ class DashboardView extends StatelessWidget {
             _buildBmiAndGoalsCard(context, vm, assessment),
           ],
 
+          if (expiring.isNotEmpty) ...[
+            const SizedBox(height: 20),
+            Text('Expiring soon', style: TextStyle(fontSize: 11, letterSpacing: 1.0, fontWeight: FontWeight.w700, color: AppColors.accent700)),
+            const SizedBox(height: 8),
+            SizedBox(
+              height: 56,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: expiring.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 10),
+                itemBuilder: (ctx, i) {
+                  final item = expiring[i];
+                  final days = item.expiryDate != null ? item.expiryDate!.difference(DateTime.now()).inDays : 0;
+                  return InkWell(
+                    onTap: () => vm.setTabIndex(1),
+                    child: Container(
+                      width: 132,
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(color: AppColors.surface, border: Border.all(color: AppColors.dividerColor(context))),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(item.name, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13), maxLines: 1, overflow: TextOverflow.ellipsis),
+                          Text(
+                            days <= 0 ? 'Expires today' : (days == 1 ? 'Expires tomorrow' : '$days days left'),
+                            style: const TextStyle(fontSize: 11, color: AppColors.accent700),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+
+          const SizedBox(height: 20),
+          Text('Quick actions', style: TextStyle(fontSize: 11, letterSpacing: 1.0, fontWeight: FontWeight.w700, color: AppColors.muted(context))),
+          const SizedBox(height: 8),
+          Container(
+            color: AppColors.dividerColor(context),
+            child: GridView.count(
+              crossAxisCount: isDesktop ? 4 : 2,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              mainAxisSpacing: 2,
+              crossAxisSpacing: 2,
+              childAspectRatio: 1.6,
+              children: [
+                _quickAction(context, icon: Icons.camera_alt_rounded, label: 'Scan a bill', onTap: () => AddBillSheet.show(context)),
+                _quickAction(context, icon: Icons.restaurant_rounded, label: 'Log a meal', onTap: () => SnapMealSheet.show(context)),
+                _quickAction(context, icon: Icons.menu_book_rounded, label: 'Browse recipes', onTap: () => vm.setTabIndex(3)),
+                _quickAction(context, icon: Icons.auto_awesome_rounded, label: 'Recommendations', onTap: () => vm.setTabIndex(5)),
+              ],
+            ),
+          ),
+
           const SizedBox(height: 24),
 
           // Micronutrients & Fiber Tracking Card
@@ -106,8 +176,8 @@ class DashboardView extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.12),
-                        borderRadius: BorderRadius.circular(8),
+                        color: AppColors.primary.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.zero,
                       ),
                       child: const Text(
                         'Target Budget Active',
@@ -150,27 +220,42 @@ class DashboardView extends StatelessWidget {
 
           const SizedBox(height: 24),
 
-          // Quick Action Cards: Expiring Inventory + Top Smart Suggestions
-          if (isDesktop)
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(child: _buildExpiringPantryCard(context, vm)),
-                const SizedBox(width: 20),
-                Expanded(child: _buildTopSuggestionsCard(context, vm, recommendations)),
-              ],
-            )
-          else ...[
-            _buildExpiringPantryCard(context, vm),
-            const SizedBox(height: 16),
-            _buildTopSuggestionsCard(context, vm, recommendations),
-          ],
+          // Top Smart Suggestions (the "Expiring soon" card is now the chip
+          // row above, matching the design — this stays as its own section).
+          _buildTopSuggestionsCard(context, vm, recommendations),
 
           const SizedBox(height: 24),
 
           // Today's Meals Timeline
           _buildTodayMealsTimeline(context, vm, summary),
         ],
+      ),
+    );
+  }
+
+  String _greetingForNow() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return 'GOOD MORNING';
+    if (hour < 17) return 'GOOD AFTERNOON';
+    return 'GOOD EVENING';
+  }
+
+  Widget _quickAction(BuildContext context, {required IconData icon, required String label, required VoidCallback onTap}) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        color: isDark ? AppColors.darkBg : AppColors.bg,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: AppColors.accent, size: 20),
+            const SizedBox(height: 8),
+            Text(label, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13)),
+          ],
+        ),
       ),
     );
   }
@@ -196,9 +281,14 @@ class DashboardView extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 20),
-          MacroDonutChart(
-            consumed: summary.totalNutrients,
-            budget: budget,
+          Container(
+            width: double.infinity,
+            color: AppColors.text,
+            padding: const EdgeInsets.all(16),
+            child: MacroDonutChart(
+              consumed: summary.totalNutrients,
+              budget: budget,
+            ),
           ),
         ],
       ),
@@ -236,9 +326,9 @@ class DashboardView extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.12),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+                  color: AppColors.primary.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.zero,
+                  border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
                 ),
                 child: Column(
                   children: [
@@ -246,7 +336,7 @@ class DashboardView extends StatelessWidget {
                       assessment.bmi.toStringAsFixed(1),
                       style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.primaryLight),
                     ),
-                    const Text('BMI', style: TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+                    const Text('BMI', style: TextStyle(fontSize: 11, color: Color(0xFF7D7979))),
                   ],
                 ),
               ),
@@ -262,7 +352,7 @@ class DashboardView extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       'BMR: ${assessment.bmr.toInt()} kcal • TDEE: ${assessment.tdee.toInt()} kcal/day',
-                      style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                      style: const TextStyle(fontSize: 11, color: Color(0xFF7D7979)),
                     ),
                   ],
                 ),
@@ -276,7 +366,7 @@ class DashboardView extends StatelessWidget {
               color: Theme.of(context).brightness == Brightness.dark
                   ? AppColors.darkCardElevated
                   : AppColors.lightCardElevated,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.zero,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -294,74 +384,11 @@ class DashboardView extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   'Preferences: ${member.dietaryPreferences.join(', ')}',
-                  style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                  style: const TextStyle(fontSize: 11, color: Color(0xFF7D7979)),
                 ),
               ],
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildExpiringPantryCard(BuildContext context, MainViewModel vm) {
-    final expiring = vm.expiringSoonItems;
-
-    return GlassCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.timer_outlined, color: AppColors.warmAmber, size: 18),
-              const SizedBox(width: 8),
-              const Text('Expiring Soon in Pantry', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-              const Spacer(),
-              InkWell(
-                onTap: () => vm.setTabIndex(1), // Pantry tab
-                child: const Text('View All', style: TextStyle(color: AppColors.primaryLight, fontSize: 12, fontWeight: FontWeight.bold)),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          if (expiring.isEmpty)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: Text(
-                '✨ All pantry ingredients are fresh!',
-                style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
-              ),
-            )
-          else
-            ...expiring.take(3).map((it) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Row(
-                  children: [
-                    Text(it.category.iconEmoji, style: const TextStyle(fontSize: 16)),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        it.name,
-                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: AppColors.roseAlert.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        '${it.expiryDate != null ? it.expiryDate!.difference(DateTime.now()).inDays : 0}d left',
-                        style: const TextStyle(fontSize: 11, color: AppColors.roseAlert, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }),
         ],
       ),
     );
@@ -388,7 +415,7 @@ class DashboardView extends StatelessWidget {
           if (recs.isEmpty)
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 8),
-              child: Text('Goals are perfectly on track today!', style: TextStyle(fontSize: 13, color: Color(0xFF64748B))),
+              child: Text('Goals are perfectly on track today!', style: TextStyle(fontSize: 13, color: Color(0xFF7D7979))),
             )
           else
             ...recs.take(2).map((r) {
@@ -396,9 +423,9 @@ class DashboardView extends StatelessWidget {
                 margin: const EdgeInsets.only(bottom: 8),
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+                  color: AppColors.primary.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.zero,
+                  border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -411,7 +438,7 @@ class DashboardView extends StatelessWidget {
                         children: [
                           Text(r.title, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                           const SizedBox(height: 2),
-                          Text(r.suggestedAction, style: const TextStyle(fontSize: 11, color: Color(0xFFCBD5E1))),
+                          Text(r.suggestedAction, style: const TextStyle(fontSize: 11, color: Color(0xFFD7D3D3))),
                         ],
                       ),
                     ),
@@ -460,14 +487,14 @@ class DashboardView extends StatelessWidget {
                       const SizedBox(width: 6),
                       Text(type.displayName, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                       const SizedBox(width: 8),
-                      Text('(${meals.length} items)', style: const TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+                      Text('(${meals.length} items)', style: const TextStyle(fontSize: 11, color: Color(0xFF7D7979))),
                     ],
                   ),
                   const SizedBox(height: 6),
                   if (meals.isEmpty)
                     Padding(
                       padding: const EdgeInsets.only(left: 24, bottom: 4),
-                      child: Text('Nothing logged yet for ${type.displayName}', style: const TextStyle(fontSize: 12, color: Color(0xFF64748B))),
+                      child: Text('Nothing logged yet for ${type.displayName}', style: const TextStyle(fontSize: 12, color: Color(0xFF7D7979))),
                     )
                   else
                     ...meals.map((m) {
@@ -478,7 +505,7 @@ class DashboardView extends StatelessWidget {
                           color: Theme.of(context).brightness == Brightness.dark
                               ? AppColors.darkCardElevated
                               : AppColors.lightCardElevated,
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.zero,
                         ),
                         child: Row(
                           children: [
@@ -492,7 +519,7 @@ class DashboardView extends StatelessWidget {
                                   ),
                                   Text(
                                     'P: ${m.calculatedNutrients.proteinGrams.toStringAsFixed(0)}g • C: ${m.calculatedNutrients.carbsGrams.toStringAsFixed(0)}g • F: ${m.calculatedNutrients.fatGrams.toStringAsFixed(0)}g',
-                                    style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                                    style: const TextStyle(fontSize: 11, color: Color(0xFF7D7979)),
                                   ),
                                 ],
                               ),

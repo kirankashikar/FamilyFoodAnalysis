@@ -35,7 +35,7 @@ class RecommendationsView extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       'Goal: ${member.goal.displayName} • Context: ${member.ethnicity} • ${recommendations.length} active suggestions',
-                      style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+                      style: const TextStyle(fontSize: 13, color: Color(0xFF7D7979)),
                     ),
                   ],
                 ),
@@ -43,9 +43,9 @@ class RecommendationsView extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+                  color: AppColors.primary.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.zero,
+                  border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
                 ),
                 child: const Row(
                   children: [
@@ -84,7 +84,7 @@ class RecommendationsView extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         member.goal.description,
-                        style: const TextStyle(fontSize: 12, color: Color(0xFFCBD5E1)),
+                        style: const TextStyle(fontSize: 12, color: Color(0xFFD7D3D3)),
                       ),
                     ],
                   ),
@@ -170,8 +170,8 @@ class RecommendationsView extends StatelessWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: badgeColor.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(12),
+                  color: badgeColor.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.zero,
                 ),
                 child: Center(
                   child: Text(rec.iconEmoji, style: const TextStyle(fontSize: 22)),
@@ -187,8 +187,8 @@ class RecommendationsView extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                           decoration: BoxDecoration(
-                            color: badgeColor.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(6),
+                            color: badgeColor.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.zero,
                           ),
                           child: Text(
                             categoryLabel,
@@ -198,7 +198,7 @@ class RecommendationsView extends StatelessWidget {
                         const SizedBox(width: 8),
                         Text(
                           'Impact: ${rec.affectedNutrient}',
-                          style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                          style: const TextStyle(fontSize: 11, color: Color(0xFF7D7979)),
                         ),
                       ],
                     ),
@@ -210,7 +210,7 @@ class RecommendationsView extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       rec.description,
-                      style: const TextStyle(fontSize: 13, color: Color(0xFFCBD5E1)),
+                      style: const TextStyle(fontSize: 13, color: Color(0xFFD7D3D3)),
                     ),
                   ],
                 ),
@@ -225,7 +225,7 @@ class RecommendationsView extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: isDark ? AppColors.darkCardElevated : AppColors.lightCardElevated,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.zero,
               border: Border.all(
                 color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
               ),

@@ -61,7 +61,7 @@ class _SheetsSyncViewState extends State<SheetsSyncView> with SingleTickerProvid
                     const SizedBox(height: 4),
                     Text(
                       'Connected to: ${config.googleAccountEmail ?? vm.currentUser?.email ?? 'Logged-in Google User'}',
-                      style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+                      style: const TextStyle(fontSize: 13, color: Color(0xFF7D7979)),
                     ),
                   ],
                 ),
@@ -90,8 +90,8 @@ class _SheetsSyncViewState extends State<SheetsSyncView> with SingleTickerProvid
                   width: 52,
                   height: 52,
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(14),
+                    color: AppColors.primary.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.zero,
                   ),
                   child: const Icon(Icons.table_chart_rounded, color: AppColors.primaryLight, size: 28),
                 ),
@@ -113,7 +113,7 @@ class _SheetsSyncViewState extends State<SheetsSyncView> with SingleTickerProvid
                       const SizedBox(height: 4),
                       Text(
                         'Last Sync: ${config.lastSyncTime != null ? dateFormat.format(config.lastSyncTime!) : 'Never'} • 2 Active Tabs',
-                        style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                        style: const TextStyle(fontSize: 12, color: Color(0xFF7D7979)),
                       ),
                     ],
                   ),
@@ -222,7 +222,7 @@ class _SheetsSyncViewState extends State<SheetsSyncView> with SingleTickerProvid
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCardElevated : AppColors.lightCardElevated,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.zero,
         border: Border.all(
           color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
         ),
@@ -237,8 +237,8 @@ class _SheetsSyncViewState extends State<SheetsSyncView> with SingleTickerProvid
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(6),
+                  color: AppColors.primary.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.zero,
                 ),
                 child: const Text('RFC 4180 Format', style: TextStyle(fontSize: 10, color: AppColors.primaryLight, fontWeight: FontWeight.bold)),
               ),
