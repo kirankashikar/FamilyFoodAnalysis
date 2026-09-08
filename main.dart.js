@@ -8103,7 +8103,7 @@ this.b=b},
 agb:function agb(a){this.a=a},
 a2_:function a2_(a,b){this.a=a
 this.b=b},
-aSI(){return new A.Fb("usr_demo_01","demo.family@gmail.com","Kiran Kashikar","https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150",B.Eh,A.aSH("Kiran"),"self")},
+aSI(){return new A.Fb("usr_demo_01","guest.user@familyfood.app","Guest User",null,B.Eh,A.aSH("Alex"),"self")},
 aSH(a){var s="South Asian (Indian)",r=t.s
 return A.b([new A.dH("self",a,"Self",32,"Male",175,72,"Moderate",s,A.b(["Vegetarian","Gut-Friendly Fermented"],r),A.b(["Peanuts"],r),B.ms,new A.pS(2200,110,260,60,35,2000,3500)),new A.dH("member_spouse","Ananya","Spouse",30,"Female",162,58,"Light",s,A.b(["Vegetarian","Low-Dairy"],r),A.b([],r),B.mt,new A.pS(1800,70,220,50,28,1900,3000)),new A.dH("member_child","Aarav","Child",6,"Male",115,21,"Active",s,A.b(["Vegetarian"],r),A.b([],r),B.qG,new A.pS(1500,45,200,45,20,1500,2500))],t.Jy)},
 a2j:function a2j(a){this.a=null
@@ -47561,9 +47561,9 @@ s=r.length
 if(s===0)return A.dh(A.as(A.b([B.Lw,B.aF,B.a39,B.c_,B.a3S,B.ak,A.q1(B.a2I,new A.azz(this))],t.p),B.l,B.du,B.f),null,null)
 return A.BJ(new A.azA(this,r,c,b),s,B.V,null,B.W,new A.azB(),!1)},
 ani(a,b){var s=null,r=$.a7()
-A.jU(s,s,!0,s,new A.azH(new A.cf(new A.bx("883920194821",B.am,B.X),r),new A.cf(new A.bx("kiran.kashikar@example.com",B.am,B.X),r),b),a,s,!0,t.z)},
+A.jU(s,s,!0,s,new A.azH(new A.cf(new A.bx("883920194821",B.am,B.X),r),new A.cf(new A.bx("guest.user@familyfood.app",B.am,B.X),r),b),a,s,!0,t.z)},
 VC(a,b,c){var s=null
-A.jU(s,s,!0,s,new A.azE(c,new A.cf(new A.bx("kiran.kashikar@example.com",B.am,B.X),$.a7()),b),a,s,!0,t.z)},
+A.jU(s,s,!0,s,new A.azE(c,new A.cf(new A.bx("guest.user@familyfood.app",B.am,B.X),$.a7()),b),a,s,!0,t.z)},
 RL(a){return""+A.b8(a)+"-"+B.c.dv(B.h.k(A.bi(a)),2,"0")+"-"+B.c.dv(B.h.k(A.c6(a)),2,"0")}}
 A.azI.prototype={
 $0(){return A.cs(this.a,!1).d7()},
