@@ -19,14 +19,14 @@ class AuthService {
   Future<UserProfile> signInWithGoogle({String? customEmail, String? customName}) async {
     await Future.delayed(const Duration(milliseconds: 600));
 
-    final email = customEmail ?? 'kiran.foodanalyst@gmail.com';
-    final name = customName ?? 'Kiran Kashikar';
+    final email = customEmail ?? 'guest.user@familyfood.app';
+    final name = customName ?? 'Guest User';
 
     _currentUser = UserProfile(
       id: 'usr_google_${DateTime.now().millisecondsSinceEpoch}',
       email: email,
       displayName: name,
-      photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+      photoUrl: null,
       authProvider: AuthProviderType.google,
       familyMembers: _createDefaultFamilyMembers(primaryName: name),
       activeMemberId: 'self',
@@ -39,13 +39,13 @@ class AuthService {
   Future<UserProfile> signInWithGithub({String? customUsername}) async {
     await Future.delayed(const Duration(milliseconds: 600));
 
-    final username = customUsername ?? 'kirankashikar';
+    final username = customUsername ?? 'demo_user';
 
     _currentUser = UserProfile(
       id: 'usr_github_${DateTime.now().millisecondsSinceEpoch}',
       email: '$username@users.noreply.github.com',
       displayName: username,
-      photoUrl: 'https://avatars.githubusercontent.com/u/583231?v=4',
+      photoUrl: null,
       authProvider: AuthProviderType.github,
       familyMembers: _createDefaultFamilyMembers(primaryName: username),
       activeMemberId: 'self',
@@ -103,11 +103,11 @@ class AuthService {
   static UserProfile _createDefaultUser() {
     return UserProfile(
       id: 'usr_demo_01',
-      email: 'demo.family@gmail.com',
-      displayName: 'Kiran Kashikar',
-      photoUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
+      email: 'guest.user@familyfood.app',
+      displayName: 'Guest User',
+      photoUrl: null,
       authProvider: AuthProviderType.google,
-      familyMembers: _createDefaultFamilyMembers(primaryName: 'Kiran'),
+      familyMembers: _createDefaultFamilyMembers(primaryName: 'Alex'),
       activeMemberId: 'self',
     );
   }

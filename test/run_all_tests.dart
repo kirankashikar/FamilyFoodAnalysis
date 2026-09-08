@@ -26,9 +26,9 @@ void main() async {
   }
 
   print('\n🧪 [1/6] Running BMI Calculator & Caloric Distribution Tests...');
-  final kiranProfile = FamilyMemberProfile(
-    id: 'kiran_01',
-    name: 'Kiran Kashikar',
+  final testProfile = FamilyMemberProfile(
+    id: 'test_member_01',
+    name: 'Alex Sample',
     relationship: 'Self',
     age: 32,
     gender: 'Male',
@@ -42,7 +42,7 @@ void main() async {
     customMacroBudget: DailyMacroBudget.defaultBudget(),
   );
 
-  final bmiAssessment = BmiCalculator.calculate(kiranProfile);
+  final bmiAssessment = BmiCalculator.calculate(testProfile);
   expect((bmiAssessment.bmi - 23.5).abs() < 0.2, 'BMI calculated accurately (~23.5)');
   expect(bmiAssessment.category == 'Normal weight', 'BMI category is Normal weight');
   expect(bmiAssessment.bmr > 1600 && bmiAssessment.bmr < 1800, 'BMR falls in accurate Mifflin-St Jeor range');
@@ -102,7 +102,7 @@ void main() async {
   );
 
   final recs = RecommendationEngine.generateRecommendations(
-    member: kiranProfile,
+    member: testProfile,
     todayIntake: lowProteinIntake,
     inventory: testInventory,
   );

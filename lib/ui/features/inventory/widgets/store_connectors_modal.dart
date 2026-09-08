@@ -493,7 +493,7 @@ class _StoreConnectorsModalState extends State<StoreConnectorsModal> with Single
 
   void _showCostcoConnectDialog(BuildContext context, MainViewModel vm) {
     final membershipCtrl = TextEditingController(text: '883920194821');
-    final emailCtrl = TextEditingController(text: 'kiran.kashikar@example.com');
+    final emailCtrl = TextEditingController(text: 'guest.user@familyfood.app');
 
     showDialog(
       context: context,
@@ -549,7 +549,7 @@ class _StoreConnectorsModalState extends State<StoreConnectorsModal> with Single
   }
 
   void _showAmazonConnectDialog(BuildContext context, MainViewModel vm, StoreType storeType) {
-    final emailCtrl = TextEditingController(text: 'kiran.kashikar@example.com');
+    final emailCtrl = TextEditingController(text: 'guest.user@familyfood.app');
 
     showDialog(
       context: context,
