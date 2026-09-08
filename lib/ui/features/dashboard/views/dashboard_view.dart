@@ -8,7 +8,6 @@ import 'package:family_food_analysis/ui/core/macro_donut_chart.dart';
 import 'package:family_food_analysis/ui/core/nutrient_progress_bar.dart';
 import 'package:family_food_analysis/data/models/food_item.dart';
 import 'package:family_food_analysis/data/models/nutrition_goals.dart';
-import 'package:family_food_analysis/data/models/grocery_item.dart';
 import 'package:family_food_analysis/domain/services/bmi_calculator.dart';
 import 'package:family_food_analysis/domain/services/recommendation_engine.dart';
 import 'package:family_food_analysis/domain/services/nutrition_analytics.dart';
