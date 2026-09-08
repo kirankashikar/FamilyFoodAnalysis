@@ -1,0 +1,11 @@
+{
+  "name": "FamilyFood - Grocery & Nutrition Analysis",
+  "short_name": "FamilyFood",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#10b981",
+  "description": "Cross-platform grocery inventory, cultural nutrition tracking, BMI vitality, and Google Sheets synchronization.",
+  "orientation": "portrait-primary",
+  "prefer_related_applications": false
+}
