@@ -40,6 +40,7 @@ jobs:
         run: flutter test --coverage
 
       - name: 📊 Upload Coverage Report
+        continue-on-error: true # Optional reporting step — must never block deploy (e.g. artifact storage quota)
         uses: actions/upload-artifact@v4
         with:
           name: code-coverage-report
