@@ -14,9 +14,6 @@ class RecommendationsView extends StatelessWidget {
     final vm = context.watch<MainViewModel>();
     final recommendations = vm.currentRecommendations;
     final member = vm.activeMember;
-    final summary = vm.todaySummary;
-    final budget = member.customMacroBudget;
-    final isDesktop = MediaQuery.of(context).size.width >= 900;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return SingleChildScrollView(

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:family_food_analysis/ui/theme/app_theme.dart';
 import 'package:family_food_analysis/ui/view_models/main_view_model.dart';
-import 'package:family_food_analysis/ui/core/glass_card.dart';
 import 'package:family_food_analysis/data/models/store_connector_models.dart';
 import 'package:family_food_analysis/data/models/grocery_item.dart';
 

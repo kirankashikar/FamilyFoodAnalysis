@@ -20,7 +20,6 @@ class _RecipesViewState extends State<RecipesView> {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<MainViewModel>();
-    final isDesktop = MediaQuery.of(context).size.width >= 900;
 
     final filteredRecipes = vm.recipes.where((r) {
       final matchesQuery = _searchQuery.isEmpty ||
@@ -142,7 +141,6 @@ class _RecipesViewState extends State<RecipesView> {
 
   Widget _buildRecipeCard(BuildContext context, MainViewModel vm, Recipe recipe) {
     final nut = recipe.nutrientsPerServing;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return GlassCard(
       padding: const EdgeInsets.all(16),

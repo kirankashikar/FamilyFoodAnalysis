@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:math';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:google_mlkit_commons/google_mlkit_commons.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:pdfx/pdfx.dart';
 import '../models/grocery_item.dart';
@@ -71,7 +70,7 @@ class OcrBillScannerService {
     try {
       final recognizedText = await recognizeTextFromImage(imagePathOrBase64);
       if (recognizedText.trim().isNotEmpty) {
-        return parseReceiptText(recognizedText, storeNameHint: storeNameHint, imagePath: imagePathOrBase64);
+        return await parseReceiptText(recognizedText, storeNameHint: storeNameHint, imagePath: imagePathOrBase64);
       }
     } catch (_) {
       // Falls through to the sample-receipt fallback below (e.g. on web,

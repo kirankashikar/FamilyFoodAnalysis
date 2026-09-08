@@ -6,7 +6,6 @@ import 'package:family_food_analysis/ui/view_models/main_view_model.dart';
 import 'package:family_food_analysis/ui/core/glass_card.dart';
 import 'package:family_food_analysis/data/models/food_item.dart';
 import 'package:family_food_analysis/data/models/nutrition_goals.dart';
-import 'package:family_food_analysis/domain/services/nutrition_analytics.dart';
 import 'package:family_food_analysis/ui/features/intake/widgets/snap_meal_sheet.dart';
 
 class IntakeView extends StatelessWidget {

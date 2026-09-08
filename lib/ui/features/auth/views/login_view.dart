@@ -10,7 +10,6 @@ class LoginView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<MainViewModel>();
-    final isDesktop = MediaQuery.of(context).size.width >= 900;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(

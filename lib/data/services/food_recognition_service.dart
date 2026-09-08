@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:google_mlkit_commons/google_mlkit_commons.dart';
 import 'package:google_mlkit_image_labeling/google_mlkit_image_labeling.dart';
 
 /// On-device ("native") food-photo labeling: identifies broad labels for a

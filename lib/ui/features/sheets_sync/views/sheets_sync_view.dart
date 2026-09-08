@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:family_food_analysis/ui/theme/app_theme.dart';
 import 'package:family_food_analysis/ui/view_models/main_view_model.dart';
 import 'package:family_food_analysis/ui/core/glass_card.dart';
-import 'package:family_food_analysis/data/models/google_sheets_config.dart';
 
 class SheetsSyncView extends StatefulWidget {
   const SheetsSyncView({super.key});
@@ -38,8 +37,6 @@ class _SheetsSyncViewState extends State<SheetsSyncView> with SingleTickerProvid
   Widget build(BuildContext context) {
     final vm = context.watch<MainViewModel>();
     final config = vm.sheetsConfig;
-    final isDesktop = MediaQuery.of(context).size.width >= 900;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final dateFormat = DateFormat('MMM d, yyyy • h:mm a');
 
     final inventoryCsv = vm.exportInventoryAsCsv();

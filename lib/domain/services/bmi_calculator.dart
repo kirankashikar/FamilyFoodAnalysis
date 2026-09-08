@@ -127,7 +127,6 @@ class BmiCalculator {
         break;
 
       case HealthGoal.balancedMaintenance:
-      default:
         targetCalories = tdee.clamp(1400.0, 3500.0);
         proteinRatio = 0.22;
         carbsRatio = 0.50;

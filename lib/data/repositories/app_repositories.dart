@@ -1,4 +1,3 @@
-import 'dart:math';
 import '../models/grocery_item.dart';
 import '../models/food_item.dart';
 import '../models/recipe.dart';
@@ -7,14 +6,12 @@ import '../services/ocr_bill_scanner_service.dart';
 
 class InventoryRepository {
   final LocalStorageService _localStorage;
-  final OcrBillScannerService _ocrService;
   List<GroceryItem> _items = [];
 
   InventoryRepository({
     required LocalStorageService localStorage,
     required OcrBillScannerService ocrService,
-  })  : _localStorage = localStorage,
-        _ocrService = ocrService;
+  }) : _localStorage = localStorage;
 
   List<GroceryItem> get items => List.unmodifiable(_items);
 

@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class CulturalDietPreset {
   final String id;
   final String name; // e.g. South Indian, North Indian, Mediterranean, East Asian, Middle Eastern, Latin American, Western
