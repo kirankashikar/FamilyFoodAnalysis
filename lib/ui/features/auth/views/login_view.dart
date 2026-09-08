@@ -1,7 +1,10 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:family_food_analysis/ui/theme/app_theme.dart';
 import 'package:family_food_analysis/ui/view_models/main_view_model.dart';
+import 'package:family_food_analysis/data/services/google_auth/web_wrapper.dart' as google_web;
 
 class LoginView extends StatelessWidget {
   const LoginView({super.key});
@@ -62,15 +65,7 @@ class LoginView extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SizedBox(
-                        width: double.infinity,
-                        height: 48,
-                        child: OutlinedButton.icon(
-                          onPressed: vm.isLoading ? null : () => vm.signInWithGoogle(),
-                          icon: const Icon(Icons.g_mobiledata_rounded, size: 28),
-                          label: const Text('Continue with Google'),
-                        ),
-                      ),
+                      _buildGoogleSignInButton(vm),
                       const SizedBox(height: 12),
                       SizedBox(
                         width: double.infinity,
@@ -103,6 +98,50 @@ class LoginView extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  /// On platforms where Google Identity Services supports an explicit
+  /// prompt, a normal styled button works. On web, sign-in must be
+  /// triggered by Google's own rendered button (a browser security/GIS
+  /// requirement) — this app-provided button can't call authenticate()
+  /// there, so it renders that instead.
+  Widget _buildGoogleSignInButton(MainViewModel vm) {
+    bool supportsExplicitPrompt;
+    try {
+      supportsExplicitPrompt = GoogleSignIn.instance.supportsAuthenticate();
+    } catch (_) {
+      // GoogleSignIn.initialize() didn't complete successfully (e.g. no
+      // network at startup) — fall back to the simulated button below.
+      supportsExplicitPrompt = true;
+    }
+
+    if (supportsExplicitPrompt) {
+      return SizedBox(
+        width: double.infinity,
+        height: 48,
+        child: OutlinedButton.icon(
+          onPressed: vm.isLoading ? null : () => vm.signInWithGoogle(),
+          icon: const Icon(Icons.g_mobiledata_rounded, size: 28),
+          label: const Text('Continue with Google'),
+        ),
+      );
+    }
+    if (kIsWeb) {
+      try {
+        return SizedBox(width: double.infinity, height: 48, child: google_web.renderButton());
+      } catch (_) {
+        // Fall through to the simulated button.
+      }
+    }
+    return SizedBox(
+      width: double.infinity,
+      height: 48,
+      child: OutlinedButton.icon(
+        onPressed: vm.isLoading ? null : () => vm.signInWithGoogle(),
+        icon: const Icon(Icons.g_mobiledata_rounded, size: 28),
+        label: const Text('Continue with Google'),
       ),
     );
   }

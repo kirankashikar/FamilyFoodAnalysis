@@ -44,6 +44,7 @@ void main() async {
     inventoryRepo.init(),
     intakeRepo.init(),
     recipeRepo.init(),
+    authService.initializeGoogleSignIn(),
   ]);
 
   runApp(

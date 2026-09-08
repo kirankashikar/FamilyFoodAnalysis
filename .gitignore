@@ -29,3 +29,8 @@ migrate_working_dir/
 
 # Android Studio will create this folder
 .gradle/
+
+# Never commit OAuth client secrets (client_id alone is safe/public)
+client_secret*.json
+*google-services.json
+*GoogleService-Info.plist

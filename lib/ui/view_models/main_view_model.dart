@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../../data/models/user_profile.dart';
 import '../../data/models/grocery_item.dart';
 import '../../data/models/food_item.dart';
@@ -42,6 +44,7 @@ class MainViewModel extends ChangeNotifier {
 
   List<StoreOrder> _costcoOrders = [];
   List<StoreOrder> _amazonOrders = [];
+  StreamSubscription<UserProfile?>? _authSub;
 
   MainViewModel({
     required AuthService authService,
@@ -67,6 +70,15 @@ class MainViewModel extends ChangeNotifier {
         _costcoService = costcoService ?? CostcoConnectorService(),
         _amazonService = amazonService ?? AmazonConnectorService() {
     _loadThemePreference();
+    // Google sign-in on web completes via Google's own rendered button, not
+    // a call from this ViewModel — this is what makes that update the UI.
+    _authSub = _authService.authStateChanges.listen((_) => notifyListeners());
+  }
+
+  @override
+  void dispose() {
+    _authSub?.cancel();
+    super.dispose();
   }
 
   Future<void> _loadThemePreference() async {
@@ -158,6 +170,13 @@ class MainViewModel extends ChangeNotifier {
     try {
       final user = await _authService.signInWithGoogle();
       _setNotification('Welcome back, ${user.displayName}!');
+    } on GoogleSignInException catch (e) {
+      // Cancelling the Google popup shouldn't surface as an app error.
+      if (e.code != GoogleSignInExceptionCode.canceled) {
+        _setNotification('Google sign-in failed: ${e.description ?? e.code}');
+      }
+    } catch (e) {
+      _setNotification('Google sign-in failed. Please try again.');
     } finally {
       _setLoading(false);
       notifyListeners();

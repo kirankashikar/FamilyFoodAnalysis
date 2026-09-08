@@ -1,9 +1,18 @@
 import 'dart:async';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../models/user_profile.dart';
 import '../models/nutrition_goals.dart';
 
 class AuthService {
+  // Public by design (OAuth client IDs are not secret) — the matching
+  // client_secret is never used client-side and must never be committed;
+  // this app has no backend to exchange it with. Registered as a "web"
+  // client, so real Google sign-in only works on the web build for now.
+  static const String googleClientId =
+      '1011394115361-kph0c2r4m5ad1bjunurjq5911tpqjog1.apps.googleusercontent.com';
+
   UserProfile? _currentUser;
+  bool _googleInitialized = false;
 
   UserProfile? get currentUser => _currentUser;
   bool get isAuthenticated => _currentUser != null;
@@ -16,7 +25,70 @@ class AuthService {
     _currentUser = _createDefaultUser();
   }
 
+  /// Call once at app startup. Sets up the real Google Identity Services
+  /// session (silent auto sign-in on return visits, and the event stream
+  /// that drives sign-in on platforms — like web — where the flow can't be
+  /// triggered by a normal app button).
+  Future<void> initializeGoogleSignIn() async {
+    if (_googleInitialized) return;
+    _googleInitialized = true;
+    try {
+      final signIn = GoogleSignIn.instance;
+      await signIn.initialize(clientId: googleClientId);
+      signIn.authenticationEvents.listen(_handleGoogleAuthEvent).onError((_) {});
+      // Nullable Future: may return null synchronously instead of a Future.
+      signIn.attemptLightweightAuthentication()?.ignore();
+    } catch (_) {
+      // No network / misconfigured client — real Google sign-in just won't
+      // be available; the simulated fallback in signInWithGoogle still works.
+    }
+  }
+
+  void _handleGoogleAuthEvent(GoogleSignInAuthenticationEvent event) {
+    final GoogleSignInAccount? account = switch (event) {
+      GoogleSignInAuthenticationEventSignIn() => event.user,
+      GoogleSignInAuthenticationEventSignOut() => null,
+    };
+    if (account != null) {
+      _currentUser = _profileFromGoogleAccount(account);
+      _userController.add(_currentUser);
+    } else if (_currentUser?.authProvider == AuthProviderType.google) {
+      _currentUser = null;
+      _userController.add(null);
+    }
+  }
+
+  UserProfile _profileFromGoogleAccount(GoogleSignInAccount account) {
+    final name = account.displayName ?? account.email.split('@').first;
+    return UserProfile(
+      id: 'usr_google_${account.id}',
+      email: account.email,
+      displayName: name,
+      photoUrl: account.photoUrl,
+      authProvider: AuthProviderType.google,
+      familyMembers: _createDefaultFamilyMembers(primaryName: name),
+      activeMemberId: 'self',
+    );
+  }
+
   Future<UserProfile> signInWithGoogle({String? customEmail, String? customName}) async {
+    // Real sign-in where the platform supports an explicit prompt (not web —
+    // web must use Google's own rendered button, see LoginView).
+    bool supportsExplicitPrompt;
+    try {
+      supportsExplicitPrompt = GoogleSignIn.instance.supportsAuthenticate();
+    } catch (_) {
+      // initializeGoogleSignIn() didn't complete successfully — fall back.
+      supportsExplicitPrompt = false;
+    }
+    if (supportsExplicitPrompt) {
+      final account = await GoogleSignIn.instance.authenticate();
+      _currentUser = _profileFromGoogleAccount(account);
+      _userController.add(_currentUser);
+      return _currentUser!;
+    }
+
+    // Simulated fallback (e.g. real sign-in isn't configured for this platform).
     await Future.delayed(const Duration(milliseconds: 600));
 
     final email = customEmail ?? 'guest.user@familyfood.app';
