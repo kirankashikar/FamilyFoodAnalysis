@@ -6,6 +6,7 @@ import 'package:family_food_analysis/ui/theme/app_theme.dart';
 import 'package:family_food_analysis/ui/view_models/main_view_model.dart';
 import 'package:family_food_analysis/data/services/google_auth/web_wrapper.dart' as google_web;
 
+/// Plain, blank-background sign-in screen — no hero art, no marketing copy.
 class LoginView extends StatelessWidget {
   const LoginView({super.key});
 
@@ -14,88 +15,68 @@ class LoginView extends StatelessWidget {
     final vm = context.watch<MainViewModel>();
 
     return Scaffold(
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 460),
-          child: Column(
-            children: [
-              // Hero panel
-              Container(
-                width: double.infinity,
-                color: AppColors.accent400,
-                padding: const EdgeInsets.fromLTRB(30, 56, 30, 40),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'FAMILY FOOD',
-                      style: TextStyle(
-                        color: AppColors.bg,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 15,
-                        letterSpacing: 2,
-                      ),
+      backgroundColor: AppColors.bg,
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 380),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 30),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Text(
+                    'FAMILY FOOD',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: AppColors.text,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 15,
+                      letterSpacing: 2,
                     ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      'Eat\nwith\nintent.',
-                      style: TextStyle(
-                        color: AppColors.bg,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 48,
-                        height: 1.0,
-                        letterSpacing: -1,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Scan bills, track pantry, and get culturally-tuned nutrition guidance for your whole family.',
-                      style: TextStyle(color: AppColors.bg, fontSize: 14, height: 1.4),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Sign-in panel
-              Expanded(
-                child: Container(
-                  width: double.infinity,
-                  color: AppColors.bg,
-                  padding: const EdgeInsets.fromLTRB(30, 28, 30, 36),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildGoogleSignInButton(vm),
-                      const SizedBox(height: 12),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 48,
-                        child: OutlinedButton.icon(
-                          onPressed: vm.isLoading ? null : () => vm.signInWithGithub(),
-                          icon: const Icon(Icons.code_rounded, size: 20),
-                          label: const Text('Continue with GitHub'),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 48,
-                        child: ElevatedButton(
-                          onPressed: vm.isLoading ? null : () => vm.signInAsGuest(),
-                          child: const Text('Try Guest / Demo Mode'),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        "Demo mode pre-loads a sample family's pantry & meals",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 11, color: AppColors.muted(context)),
-                      ),
-                    ],
                   ),
-                ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Sign in to continue',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 13, color: AppColors.muted(context)),
+                  ),
+                  const SizedBox(height: 40),
+                  if (vm.isLoading)
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: 20),
+                      child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                    ),
+                  _buildGoogleSignInButton(vm),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: OutlinedButton.icon(
+                      onPressed: vm.isLoading ? null : () => vm.signInWithGithub(),
+                      icon: const Icon(Icons.code_rounded, size: 20),
+                      label: const Text('Continue with GitHub'),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: vm.isLoading ? null : () => vm.signInAsGuest(),
+                      child: const Text('Try Guest / Demo Mode'),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    "Demo mode pre-loads a sample family's pantry & meals",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 11, color: AppColors.muted(context)),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
@@ -117,24 +98,14 @@ class LoginView extends StatelessWidget {
       supportsExplicitPrompt = true;
     }
 
-    if (supportsExplicitPrompt) {
-      return SizedBox(
-        width: double.infinity,
-        height: 48,
-        child: OutlinedButton.icon(
-          onPressed: vm.isLoading ? null : () => vm.signInWithGoogle(),
-          icon: const Icon(Icons.g_mobiledata_rounded, size: 28),
-          label: const Text('Continue with Google'),
-        ),
-      );
-    }
-    if (kIsWeb) {
+    if (!supportsExplicitPrompt && kIsWeb) {
       try {
         return SizedBox(width: double.infinity, height: 48, child: google_web.renderButton());
       } catch (_) {
         // Fall through to the simulated button.
       }
     }
+
     return SizedBox(
       width: double.infinity,
       height: 48,

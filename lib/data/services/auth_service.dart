@@ -20,10 +20,7 @@ class AuthService {
   final _userController = StreamController<UserProfile?>.broadcast();
   Stream<UserProfile?> get authStateChanges => _userController.stream;
 
-  AuthService() {
-    // Default initial user for instant development & demonstration
-    _currentUser = _createDefaultUser();
-  }
+  AuthService();
 
   /// Call once at app startup. Sets up the real Google Identity Services
   /// session (silent auto sign-in on return visits, and the event stream
